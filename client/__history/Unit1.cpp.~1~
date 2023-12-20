@@ -1,0 +1,40 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "Unit1.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm1 *Form1;
+//---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner)
+	: TForm(Owner)
+{
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::Button1Click(TObject *Sender)
+{
+	TCP_klijent->Connect();
+	if (TCP_klijent->Connected()) {
+		TCP_klijent->Socket->WriteLn(Eime->Text);
+		TCP_klijent->Socket->WriteLn(Eprezime->Text);
+		TCP_klijent->Socket->WriteLn(Esifra->Text); // pošalji prvi broj
+
+		String receivedData = TCP_klijent->Socket->ReadLn();  // Èitamo odgovor od poslužitelja
+
+		// Ovdje trebate dodati kod za prikazivanje naziva knjiga u svom ListView ili drugoj komponenti
+		// Primjer:
+		ListView1->Items->Clear();
+		TListItem *item = ListView1->Items->Add();
+		item->Caption = "Knjige koje posuðene:";
+		item->SubItems->Add(receivedData);
+
+		TCP_klijent->Disconnect();
+	} else {
+		ShowMessage("Nije moguæe uspostaviti vezu s poslužiteljem.");
+	}
+}
+
+//---------------------------------------------------------------------------

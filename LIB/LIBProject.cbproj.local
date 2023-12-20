@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.439,C:\Users\Hrsto\OneDrive\Radna površina\C++Builder projekti\Project1.cbproj=C:\Users\Hrsto\OneDrive\Radna površina\LIB\LIBProject.cbproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.284,C:\Users\Hrsto\OneDrive\Radna površina\C++Builder projekti\File1.cpp=C:\Users\Hrsto\OneDrive\Radna površina\LIB\Encryptor.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.295,=C:\Users\Hrsto\OneDrive\Radna površina\C++Builder projekti\File1.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.633,C:\Users\Hrsto\OneDrive\Radna površina\C++Builder projekti\File1.h=C:\Users\Hrsto\OneDrive\Radna površina\LIB\Encryptor.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.076,=C:\Users\Hrsto\OneDrive\Radna površina\C++Builder projekti\File1.h</Transaction>
+  </Transactions>
+</BorlandProject>

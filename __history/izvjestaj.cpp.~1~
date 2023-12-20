@@ -1,0 +1,135 @@
+
+// ****************************************************************************************** //
+//                                                                                          
+//                                     XML Data Binding                                     
+//                                                                                          
+//         Generated on: 27.7.2023. 16:48:48                                                
+//       Generated from: C:\Users\Hrsto\OneDrive\Radna površina\Projekt ntp\izvjestaj.xdb   
+//   Settings stored in: C:\Users\Hrsto\OneDrive\Radna površina\Projekt ntp\izvjestaj.xdb   
+//                                                                                          
+// ****************************************************************************************** //
+
+#include <System.hpp>
+#pragma hdrstop
+
+#include "izvjestaj.h"
+
+
+// Global Functions 
+
+_di_IXMLizvjestajType __fastcall Getizvjestaj(Xml::Xmlintf::_di_IXMLDocument Doc)
+{
+  return (_di_IXMLizvjestajType) Doc->GetDocBinding("izvjestaj", __classid(TXMLizvjestajType), TargetNamespace);
+};
+
+_di_IXMLizvjestajType __fastcall Getizvjestaj(Xml::Xmldoc::TXMLDocument *Doc)
+{
+  Xml::Xmlintf::_di_IXMLDocument DocIntf;
+  Doc->GetInterface(DocIntf);
+  return Getizvjestaj(DocIntf);
+};
+
+_di_IXMLizvjestajType __fastcall Loadizvjestaj(const System::UnicodeString& FileName)
+{
+  return (_di_IXMLizvjestajType) Xml::Xmldoc::LoadXMLDocument(FileName)->GetDocBinding("izvjestaj", __classid(TXMLizvjestajType), TargetNamespace);
+};
+
+_di_IXMLizvjestajType __fastcall  Newizvjestaj()
+{
+  return (_di_IXMLizvjestajType) Xml::Xmldoc::NewXMLDocument()->GetDocBinding("izvjestaj", __classid(TXMLizvjestajType), TargetNamespace);
+};
+
+// TXMLizvjestajType 
+
+void __fastcall TXMLizvjestajType::AfterConstruction(void)
+{
+  RegisterChildNode(System::UnicodeString("korisnik"), __classid(TXMLkorisnikType));
+  ItemTag = "korisnik";
+  ItemInterface = __uuidof(IXMLkorisnikType);
+  Xml::Xmldoc::TXMLNodeCollection::AfterConstruction();
+};
+
+_di_IXMLkorisnikType __fastcall TXMLizvjestajType::Get_korisnik(int Index)
+{
+  return (_di_IXMLkorisnikType) List->Nodes[Index];
+};
+
+_di_IXMLkorisnikType __fastcall TXMLizvjestajType::Add()
+{
+  return (_di_IXMLkorisnikType) AddItem(-1);
+};
+
+_di_IXMLkorisnikType __fastcall TXMLizvjestajType::Insert(const int Index)
+{
+  return (_di_IXMLkorisnikType) AddItem(Index);
+};
+
+// TXMLkorisnikType 
+
+void __fastcall TXMLkorisnikType::AfterConstruction(void)
+{
+  RegisterChildNode(System::UnicodeString("posudba"), __classid(TXMLposudbaType));
+  Xml::Xmldoc::TXMLNode::AfterConstruction();
+};
+
+System::UnicodeString __fastcall TXMLkorisnikType::Get_ime()
+{
+  return GetChildNodes()->Nodes[System::UnicodeString("ime")]->Text;
+};
+
+void __fastcall TXMLkorisnikType::Set_ime(System::UnicodeString Value)
+{
+  GetChildNodes()->Nodes[System::UnicodeString("ime")]->NodeValue = Value;
+};
+
+System::UnicodeString __fastcall TXMLkorisnikType::Get_prezime()
+{
+  return GetChildNodes()->Nodes[System::UnicodeString("prezime")]->Text;
+};
+
+void __fastcall TXMLkorisnikType::Set_prezime(System::UnicodeString Value)
+{
+  GetChildNodes()->Nodes[System::UnicodeString("prezime")]->NodeValue = Value;
+};
+
+_di_IXMLposudbaType __fastcall TXMLkorisnikType::Get_posudba()
+{
+  return (_di_IXMLposudbaType) GetChildNodes()->Nodes[System::UnicodeString("posudba")];
+};
+
+// TXMLposudbaType 
+
+System::UnicodeString __fastcall TXMLposudbaType::Get_knjiga()
+{
+  return GetChildNodes()->Nodes[System::UnicodeString("knjiga")]->Text;
+};
+
+void __fastcall TXMLposudbaType::Set_knjiga(System::UnicodeString Value)
+{
+  GetChildNodes()->Nodes[System::UnicodeString("knjiga")]->NodeValue = Value;
+};
+
+System::UnicodeString __fastcall TXMLposudbaType::Get_datumPosudbe()
+{
+  return GetChildNodes()->Nodes[System::UnicodeString("datumPosudbe")]->Text;
+};
+
+void __fastcall TXMLposudbaType::Set_datumPosudbe(System::UnicodeString Value)
+{
+  GetChildNodes()->Nodes[System::UnicodeString("datumPosudbe")]->NodeValue = Value;
+};
+
+System::UnicodeString __fastcall TXMLposudbaType::Get_datumVracanja()
+{
+  return GetChildNodes()->Nodes[System::UnicodeString("datumVracanja")]->Text;
+};
+
+void __fastcall TXMLposudbaType::Set_datumVracanja(System::UnicodeString Value)
+{
+  GetChildNodes()->Nodes[System::UnicodeString("datumVracanja")]->NodeValue = Value;
+};
+
+_di_IXMLposudbaType __fastcall TXMLkorisnikType::Add()
+{
+  return (_di_IXMLposudbaType) AddItem(-1);
+};

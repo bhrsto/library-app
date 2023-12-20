@@ -1,0 +1,40 @@
+//---------------------------------------------------------------------------
+
+#ifndef skidanjeDretvaH
+#define skidanjeDretvaH
+//---------------------------------------------------------------------------
+#include <vcl.h>
+#pragma hdrstop
+#include <Vcl.ExtCtrls.hpp>
+#include <System.SysUtils.hpp>
+#include <IdHTTP.hpp>
+#include <Vcl.Dialogs.hpp>
+#include <IdSSLOpenSSL.hpp>
+#include <IdIntercept.hpp>
+#include <IdInterceptThrottler.hpp>
+#include <IdHTTP.hpp>
+#include <System.Net.HttpClientComponent.hpp>
+#include <Math.hpp>
+//---------------------------------------------------------------------------
+class PreuzimanjeThread : public TThread
+{
+private:
+	TIdInterceptThrottler *Throttler;
+	void __fastcall HttpClientWorkBegin(TObject *ASender, TWorkMode AWorkMode, __int64 AWorkCountMax);
+	void __fastcall HttpClientWork(TObject *ASender, TWorkMode AWorkMode, __int64 AWorkCount);
+	void __fastcall OnHeadersAvailable(TObject *ASender, TIdHeaderList *AHeaders, bool &VContinue);
+protected:
+	void __fastcall Execute();
+public:
+	TProgressBar *ProgressBar;
+	TNetHTTPClient *HttpClient;
+	String www;
+	TEdit *EditBrzina;
+	TLabel *LabelPostotak;
+	TNetHTTPRequest *HttpRequest;
+	__fastcall PreuzimanjeThread(bool CreateSuspended, TProgressBar *ProgressBar, TNetHTTPClient *HttpClient , String www, TLabel *LabelPostotak, TEdit *EditBrzina, TNetHTTPRequest *HttpRequest);
+
+	void __fastcall HandleReceiveData(TObject * const Sender, __int64 AContentLength, __int64 AReadCount, bool &AAbort);
+	};
+//---------------------------------------------------------------------------
+#endif

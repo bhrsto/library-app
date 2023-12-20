@@ -1,0 +1,9 @@
+//---------------------------------------------------------------------------
+
+#ifndef translateFormH
+#define translateFormH
+//---------------------------------------------------------------------------
+#endif
+
+
+void translateForm(TForm* Form, String Language, const map<String, map<String, String>>& translation);

@@ -1,0 +1,112 @@
+
+//---------------------------------------------------------------------------
+
+#include <System.hpp>
+#pragma hdrstop
+#include <System.Threading.hpp>
+
+
+#include "skidanjeDretva.h"
+#pragma package(smart_init)
+
+
+//---------------------------------------------------------------------------
+
+//   Important: Methods and properties of objects in VCL can only be
+//   used in a method called using Synchronize, for example:
+//
+//      Synchronize(&UpdateCaption);
+//
+//   where UpdateCaption could look like:
+//
+//      void __fastcall PreuzimanjeThread::UpdateCaption()
+//      {
+//        Form1->Caption = "Updated in a thread";
+//      }
+//---------------------------------------------------------------------------
+
+__fastcall PreuzimanjeThread::PreuzimanjeThread(bool CreateSuspended, TProgressBar *ProgressBar, TNetHTTPClient *HttpClient , String www, TLabel *LabelPostotak, TEdit *EditBrzina, TNetHTTPRequest *HttpRequest)
+	: TThread(CreateSuspended), ProgressBar(ProgressBar), HttpClient(HttpClient), www(www), LabelPostotak(LabelPostotak), EditBrzina(EditBrzina), HttpRequest(HttpRequest)
+{
+	HttpClient->OnReceiveData = HandleReceiveData;
+
+    ProgressBar->Min = 0;
+	ProgressBar->Max = 100;
+	ProgressBar->Position = 0;
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall PreuzimanjeThread::Execute()
+{
+	//Timer->Interval = 100;
+
+
+	TFileStream *FileStream = new TFileStream("nova_baza.accdb", fmCreate);
+	try
+	{
+		HttpClient->Get(www, FileStream);
+	}
+	catch (Exception &E)
+	{
+		// Obradite greške preuzimanja ovdje
+	}
+
+
+	 delete FileStream;
+
+}
+
+//---------------------------------------------------------------------------
+
+// ... (other code)
+bool prvaIteracija = true;
+int velicinaDat;
+void __fastcall PreuzimanjeThread::HandleReceiveData(TObject * const Sender, __int64 AContentLength, __int64 AReadCount, bool &AAbort)
+{
+	int brzinaSkidanja = StrToInt(EditBrzina->Text);
+	int brzinaBytes = brzinaSkidanja * 1024;
+	int ostatakBytes = AContentLength - AReadCount;
+
+	if (AContentLength > 0)
+	{
+		int Progress = static_cast<int>((AReadCount * 100) / AContentLength);
+		TThread::Synchronize(nullptr, [=]()
+		{
+			ProgressBar->Position = Progress;
+			LabelPostotak->Caption = IntToStr(Progress) + "%";
+		});
+
+		if (Progress == 100)
+			{
+				ShowMessage("Download Complete");
+			}
+
+	 if (brzinaBytes > 0)
+	 {
+
+		if (ostatakBytes > 0)
+		{
+			if(prvaIteracija){
+				velicinaDat = AContentLength;
+				prvaIteracija = false;
+			}
+
+			 int vrijemeCijeli = (velicinaDat * 1000) / brzinaBytes;
+			 int vrijemePoslije = (ostatakBytes * 1000) / brzinaBytes;
+			 int vrijemeChunk = vrijemeCijeli - vrijemePoslije;
+			 velicinaDat = AContentLength - AReadCount;
+
+			 Sleep(vrijemeChunk);
+
+		}
+	 }
+	}
+}
+
+
+
+
+
+
+

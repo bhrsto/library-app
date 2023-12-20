@@ -1,0 +1,74 @@
+//---------------------------------------------------------------------------
+
+#include <System.hpp>
+#pragma hdrstop
+
+#include "skidanjeDretva.h"
+#pragma package(smart_init)
+//---------------------------------------------------------------------------
+
+//   Important: Methods and properties of objects in VCL can only be
+//   used in a method called using Synchronize, for example:
+//
+//      Synchronize(&UpdateCaption);
+//
+//   where UpdateCaption could look like:
+//
+//      void __fastcall PreuzimanjeThread::UpdateCaption()
+//      {
+//        Form1->Caption = "Updated in a thread";
+//      }
+//---------------------------------------------------------------------------
+
+__fastcall PreuzimanjeThread::PreuzimanjeThread(bool CreateSuspended, TProgressBar *ProgressBar, TNetHTTPClient *HttpClient , String www, TLabel *LabelPostotak, TEdit *EditBrzina, TNetHTTPRequest *HttpRequest)
+	: TThread(CreateSuspended), ProgressBar(ProgressBar), HttpClient(HttpClient), www(www), LabelPostotak(LabelPostotak), EditBrzina(EditBrzina), HttpRequest(HttpRequest)
+{
+	HttpClient->OnReceiveData = HandleReceiveData;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall PreuzimanjeThread::Execute()
+{
+
+
+	TFileStream *FileStream = new TFileStream("nova_baza.accdb", fmCreate);
+
+	try
+	{
+
+		HttpClient->Get(www, FileStream);//->GetContentStream();
+    }
+    catch (Exception &E)
+	{
+		// Obradite greške preuzimanja ovdje
+	}
+
+
+	 delete FileStream;
+
+}
+
+void __fastcall PreuzimanjeThread::HandleReceiveData(TObject * const Sender, __int64 AContentLength, __int64 AReadCount, bool &AAbort)
+{
+	int brzinaSkidanja = StrToInt(EditBrzina->Text); // Brzina u KB/s
+	int trenutniNapredak = 0;
+	int brzinaBytes = brzinaSkidanja * 1024; // Brzina u bajtovima po sekundi
+	//int procitano = AContentLength;
+	int spavaj = 0;
+
+	if (brzinaBytes > 0)
+	{
+		__int64 preostalo = AContentLength - AReadCount;
+		spavaj = (preostalo > 0) ? (preostalo / brzinaBytes) * 1000 : 0;
+	}
+
+	Sleep(spavaj);
+
+	// Ažurirajte progres bar i postotak
+	int postotak = ((int)AReadCount / (int)AContentLength) * 100;
+	TThread::Synchronize(nullptr, [=]()
+	{
+		ProgressBar->Position = postotak;
+		LabelPostotak->Caption = IntToStr(postotak) + "%";
+	});
+}

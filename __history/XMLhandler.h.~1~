@@ -1,0 +1,20 @@
+//---------------------------------------------------------------------------
+
+#ifndef XMLhandlerH
+#define XMLhandlerH
+//---------------------------------------------------------------------------
+#endif
+
+
+class xml{
+	private:
+	   String imeN, prezimeN, vrijemeN;
+	   TXMLDocument *xmlDoc;
+	public:
+	__fastcall xml(TXMLDocument *xmlDoc, String ime, String prezime, String vrijeme);
+	void __fastcall dodajNadzor(/*TXMLDocument *xmlDoc, String imeN, String prezimeN, String vrijemeN*/);
+
+
+		/*static void DodajNadzor(TXMLDocument *xmlDoc, String imeN, String prezimeN, String vrijemeN);
+		static void UrediNadzor(TXMLDocument *xmlDoc, int indeks, String imeN, String prezimeN, String vrijemeN);  */
+}

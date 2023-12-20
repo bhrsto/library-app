@@ -1,0 +1,157 @@
+//---------------------------------------------------------------------------
+
+#include <System.hpp>
+#pragma hdrstop
+#include <System.Threading.hpp>
+
+
+#include "skidanjeDretva.h"
+#pragma package(smart_init)
+//---------------------------------------------------------------------------
+
+//   Important: Methods and properties of objects in VCL can only be
+//   used in a method called using Synchronize, for example:
+//
+//      Synchronize(&UpdateCaption);
+//
+//   where UpdateCaption could look like:
+//
+//      void __fastcall PreuzimanjeThread::UpdateCaption()
+//      {
+//        Form1->Caption = "Updated in a thread";
+//      }
+//---------------------------------------------------------------------------
+
+__fastcall PreuzimanjeThread::PreuzimanjeThread(bool CreateSuspended, TProgressBar *ProgressBar, TNetHTTPClient *HttpClient , String www, TLabel *LabelPostotak, TEdit *EditBrzina, TNetHTTPRequest *HttpRequest)
+	: TThread(CreateSuspended), ProgressBar(ProgressBar), HttpClient(HttpClient), www(www), LabelPostotak(LabelPostotak), EditBrzina(EditBrzina), HttpRequest(HttpRequest)
+{
+	HttpClient->OnReceiveData = HandleReceiveData;
+
+	int brzinaSkidanja = StrToInt(EditBrzina->Text); // Brzina u KB/s
+	int intervalTajmera = (brzinaSkidanja > 0) ? (1000 / brzinaSkidanja) : 1000; // Postavite 1 sekundu kao zadani interval ako brzina nije valjana
+	Timer = new TTimer(NULL);
+	Timer->Interval = intervalTajmera;
+	Timer->OnTimer = TimerOnTimer;
+	Timer->Enabled = false;
+
+
+    ProgressBar->Min = 0;
+	ProgressBar->Max = 100;
+	ProgressBar->Position = 0;
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall PreuzimanjeThread::Execute()
+{
+	//Timer->Interval = 100;
+	Timer->Enabled = true;
+
+	TFileStream *FileStream = new TFileStream("nova_baza.accdb", fmCreate);
+	try
+	{
+		HttpClient->Get(www, FileStream);
+	}
+	catch (Exception &E)
+	{
+		// Obradite greške preuzimanja ovdje
+	}
+
+
+	 delete FileStream;
+
+}
+
+#include <System.hpp>
+#pragma hdrstop
+
+#include "skidanjeDretva.h"
+#pragma package(smart_init)
+//---------------------------------------------------------------------------
+
+// ... (other code)
+
+void __fastcall PreuzimanjeThread::HandleReceiveData(TObject * const Sender, __int64 AContentLength, __int64 AReadCount, bool &AAbort)
+{
+	static int actualDelay = 0;
+	int brzinaSkidanja = StrToInt(EditBrzina->Text); // Brzina u KB/s
+    int brzinaBytes = brzinaSkidanja * 1024; // Brzina u bajtovima po sekundi
+
+	if (AContentLength > 0)
+	{
+		// Calculate the progress percentage
+		int Progress = static_cast<int>((AReadCount * 100) / AContentLength);
+
+		// Update the progress bar
+        TThread::Synchronize(nullptr, [=]()
+        {
+			ProgressBar->Position = Progress;
+			LabelPostotak->Caption = IntToStr(Progress) + "%";
+
+			// Check if the download is complete
+			if (Progress == 100)
+			{
+				// Download is complete, perform any necessary cleanup or actions
+				ShowMessage("Download Complete");
+			}
+		});
+	}
+
+	if (brzinaBytes > 0)
+	{
+
+		// Calculate the delay to achieve the desired speed
+		int desiredSpeed = StrToInt(EditBrzina->Text); // Desired speed in KB/s
+		int desiredDelay = 1000 / desiredSpeed; // Delay in milliseconds
+		int remainingBytes = AContentLength - AReadCount;
+		int desiredSpeedBytes = desiredSpeed*1024;
+		//Sleep(desiredDelay);
+		if (remainingBytes > 0)
+		{
+			if(actualDelay == 0){
+				int actualDelayS = remainingBytes / desiredSpeedBytes;
+				actualDelay =  actualDelayS*1000;
+			}
+			//ShowMessage("Actual Delay: " + IntToStr(actualDelay) + " ms");
+			// Introduce the delay to control the download speed
+			int startTime = GetTickCount(); // Get the current system time in milliseconds
+
+			while (true)
+			{
+				int elapsedMilliseconds = GetTickCount() - startTime;
+
+				if (elapsedMilliseconds >= actualDelay)
+				{
+					// The desired delay has been reached, exit the loop
+					break;
+				}
+
+				Application->ProcessMessages(); // Allow the application to remain responsive
+			}
+		}
+
+	}
+}
+
+
+
+
+
+void __fastcall PreuzimanjeThread::TimerOnTimer(TObject *Sender)
+{
+   /*/	TThread::Synchronize(nullptr, [=]()
+	{
+		int brzinaSkidanja = StrToInt(EditBrzina->Text); // Brzina u KB/s
+		int brzinaBytes = brzinaSkidanja * 1024; // Brzina u bajtovima po sekundi
+
+		__int64 preostalo = AContentLengthD - AReadCountD;
+		int spavaj = (preostalo > 0) ? (preostalo / brzinaBytes) * 1000 : 0;
+		if(AContentLengthD != 0){
+			int postotak = static_cast<int>((AReadCountD * 100) / AContentLengthD);
+			ProgressBar->Position = postotak;
+			LabelPostotak->Caption = IntToStr(postotak) + "%";
+		}
+
+		//Timer->Enabled = false;
+	});   */
+}

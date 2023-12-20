@@ -1,0 +1,144 @@
+
+// ****************************************************************************************** //
+//                                                                                          
+//                                     XML Data Binding                                     
+//                                                                                          
+//         Generated on: 27.7.2023. 16:48:48                                                
+//       Generated from: C:\Users\Hrsto\OneDrive\Radna površina\Projekt ntp\izvjestaj.xdb   
+//   Settings stored in: C:\Users\Hrsto\OneDrive\Radna površina\Projekt ntp\izvjestaj.xdb   
+//                                                                                          
+// ****************************************************************************************** //
+
+#ifndef   izvjestajH
+#define   izvjestajH
+
+#include <System.hpp>
+#include <Xml.Xmldom.hpp>
+#include <Xml.XMLIntf.hpp>
+#include <Xml.XMLDoc.hpp>
+#include <XMLNodeImp.h>
+#include <Xml.xmlutil.hpp>
+
+
+// Forward Decls 
+
+__interface IXMLizvjestajType;
+typedef System::DelphiInterface<IXMLizvjestajType> _di_IXMLizvjestajType;
+__interface IXMLkorisnikType;
+typedef System::DelphiInterface<IXMLkorisnikType> _di_IXMLkorisnikType;
+__interface IXMLposudbaType;
+typedef System::DelphiInterface<IXMLposudbaType> _di_IXMLposudbaType;
+
+// IXMLizvjestajType 
+
+__interface INTERFACE_UUID("{BC6C3760-466D-4FD4-BD4F-A81C59AA7F8F}") IXMLizvjestajType : public Xml::Xmlintf::IXMLNodeCollection
+{
+public:
+public:
+  // Property Accessors 
+  virtual _di_IXMLkorisnikType __fastcall Get_korisnik(int Index) = 0;
+  // Methods & Properties 
+  virtual _di_IXMLkorisnikType __fastcall Add() = 0;
+  virtual _di_IXMLkorisnikType __fastcall Insert(const int Index) = 0;
+  __property _di_IXMLkorisnikType korisnik[int Index] = { read=Get_korisnik };/* default */
+};
+
+// IXMLkorisnikType 
+
+__interface INTERFACE_UUID("{7E68110D-E937-4507-A8C8-512520713954}") IXMLkorisnikType : public Xml::Xmlintf::IXMLNode
+{
+public:
+  // Property Accessors 
+  virtual System::UnicodeString __fastcall Get_ime() = 0;
+  virtual System::UnicodeString __fastcall Get_prezime() = 0;
+  virtual _di_IXMLposudbaType __fastcall Get_posudba() = 0;
+  virtual void __fastcall Set_ime(System::UnicodeString Value) = 0;
+  virtual void __fastcall Set_prezime(System::UnicodeString Value) = 0;
+  // Methods & Properties 
+  __property System::UnicodeString ime = { read=Get_ime, write=Set_ime };
+  __property System::UnicodeString prezime = { read=Get_prezime, write=Set_prezime };
+  __property _di_IXMLposudbaType posudba = { read=Get_posudba };
+};
+
+// IXMLposudbaType 
+
+__interface INTERFACE_UUID("{DA8128F5-9874-4A1B-980F-085CC36EA182}") IXMLposudbaType : public Xml::Xmlintf::IXMLNode
+{
+public:
+  // Property Accessors 
+  virtual System::UnicodeString __fastcall Get_knjiga() = 0;
+  virtual System::UnicodeString __fastcall Get_datumPosudbe() = 0;
+  virtual System::UnicodeString __fastcall Get_datumVracanja() = 0;
+  virtual void __fastcall Set_knjiga(System::UnicodeString Value) = 0;
+  virtual void __fastcall Set_datumPosudbe(System::UnicodeString Value) = 0;
+  virtual void __fastcall Set_datumVracanja(System::UnicodeString Value) = 0;
+  // Methods & Properties 
+  __property System::UnicodeString knjiga = { read=Get_knjiga, write=Set_knjiga };
+  __property System::UnicodeString datumPosudbe = { read=Get_datumPosudbe, write=Set_datumPosudbe };
+  __property System::UnicodeString datumVracanja = { read=Get_datumVracanja, write=Set_datumVracanja };
+};
+
+// Forward Decls 
+
+class TXMLizvjestajType;
+class TXMLkorisnikType;
+class TXMLposudbaType;
+
+// TXMLizvjestajType 
+
+class TXMLizvjestajType : public Xml::Xmldoc::TXMLNodeCollection, public IXMLizvjestajType
+{
+  __IXMLNODECOLLECTION_IMPL__
+protected:
+  // IXMLizvjestajType 
+  virtual _di_IXMLkorisnikType __fastcall Get_korisnik(int Index);
+  virtual _di_IXMLkorisnikType __fastcall Add();
+  virtual _di_IXMLkorisnikType __fastcall Insert(const int Index);
+public:
+  virtual void __fastcall AfterConstruction(void);
+};
+
+// TXMLkorisnikType 
+
+class TXMLkorisnikType : public Xml::Xmldoc::TXMLNode, public IXMLkorisnikType
+{
+  __IXMLNODE_IMPL__
+private:
+  _di_IXMLposudbaType Fposudba;
+protected:
+  // IXMLkorisnikType 
+  virtual System::UnicodeString __fastcall Get_ime();
+  virtual System::UnicodeString __fastcall Get_prezime();
+  virtual _di_IXMLposudbaType __fastcall Get_posudba();
+  virtual void __fastcall Set_ime(System::UnicodeString Value);
+  virtual void __fastcall Set_prezime(System::UnicodeString Value);
+  virtual _di_IXMLposudbaType __fastcall Add();
+public:
+  virtual void __fastcall AfterConstruction(void);
+};
+
+// TXMLposudbaType 
+
+class TXMLposudbaType : public Xml::Xmldoc::TXMLNode, public IXMLposudbaType
+{
+  __IXMLNODE_IMPL__
+protected:
+  // IXMLposudbaType 
+  virtual System::UnicodeString __fastcall Get_knjiga();
+  virtual System::UnicodeString __fastcall Get_datumPosudbe();
+  virtual System::UnicodeString __fastcall Get_datumVracanja();
+  virtual void __fastcall Set_knjiga(System::UnicodeString Value);
+  virtual void __fastcall Set_datumPosudbe(System::UnicodeString Value);
+  virtual void __fastcall Set_datumVracanja(System::UnicodeString Value);
+};
+
+// Global Functions 
+
+_di_IXMLizvjestajType __fastcall Getizvjestaj(Xml::Xmlintf::_di_IXMLDocument Doc);
+_di_IXMLizvjestajType __fastcall Getizvjestaj(Xml::Xmldoc::TXMLDocument *Doc);
+_di_IXMLizvjestajType __fastcall Loadizvjestaj(const System::UnicodeString& FileName);
+_di_IXMLizvjestajType __fastcall  Newizvjestaj();
+
+#define TargetNamespace ""
+
+#endif

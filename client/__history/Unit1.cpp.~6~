@@ -1,0 +1,94 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+#include<string>
+#include <future>
+#include <string>
+#include <vector>
+#include "Unit1.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma link "uTPLb_BaseNonVisualComponent"
+#pragma link "uTPLb_Codec"
+#pragma link "uTPLb_CryptographicLibrary"
+#pragma resource "*.dfm"
+TForm1 *Form1;
+//---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner)
+	: TForm(Owner)
+{
+}
+//---------------------------------------------------------------------------
+
+
+// ...
+
+void __fastcall TForm1::Button1Click(TObject *Sender)
+{
+	TCP_klijent->Connect();
+	if (TCP_klijent->Connected()) {
+		TCP_klijent->Socket->WriteLn(Eime->Text);
+		TCP_klijent->Socket->WriteLn(Eprezime->Text);
+		TCP_klijent->Socket->WriteLn(Esifra->Text);
+
+		String primljeniPodaci = TCP_klijent->Socket->ReadLn();
+
+        // Podijeli primljeni string na stavke koristeæi zarez kao separator
+		TStrings* items = new TStringList;
+		items->Delimiter = ',';
+		items->DelimitedText = primljeniPodaci;
+
+        Memo1->Lines->Clear();
+        Memo1->Lines->Add("Knjige koje posuðene:");
+		for (int i = 0; i < items->Count; i++) {
+			Memo1->Lines->Add(items->Strings[i]);
+		}
+
+		delete items;
+
+	} else {
+		ShowMessage("Nije moguæe uspostaviti vezu s poslužiteljem.");
+		TCP_klijent->Disconnect();
+	}
+}
+
+
+
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Button2Click(TObject *Sender)
+{
+	UDP_klijent->ReceiveTimeout = 5000;
+	Codec1->Password = "Kljuc_koji_je_jako_dugacak";
+ 
+	String SifriranaPoruka;
+	Codec1->EncryptString(Eautor->Text, SifriranaPoruka, TEncoding::UTF8);
+
+
+	UDP_klijent->SendBuffer("127.0.0.1", 5555, ToBytes(SifriranaPoruka));
+
+	String kriptiraneKnjige = UDP_klijent->ReceiveString();
+
+	String knjige;
+	Codec1->DecryptString(knjige, kriptiraneKnjige, TEncoding::UTF8);
+	//ShowMessage(knjige); // tajna poruka
+
+	TStrings* items = new TStringList;
+	items->Delimiter = ',';
+	items->DelimitedText = knjige;
+
+	Memo2->Lines->Clear();
+	Memo2->Lines->Add("Djela autora " + Eautor->Text + ":");
+	for (int i = 0; i < items->Count; i++) {
+			Memo2->Lines->Add(items->Strings[i]);
+		}
+	delete items;
+
+	ShowMessage("Saljem serveru: " + SifriranaPoruka);
+
+	ShowMessage("Primam od servera: " + kriptiraneKnjige);
+}
+//---------------------------------------------------------------------------
+
+

@@ -1,0 +1,32 @@
+//---------------------------------------------------------------------------
+
+#ifndef skidanjeDretvaH
+#define skidanjeDretvaH
+//---------------------------------------------------------------------------
+#include <vcl.h>
+#pragma hdrstop
+#include <Vcl.ExtCtrls.hpp>
+#include <System.SysUtils.hpp>
+#include <IdHTTP.hpp>
+#include <Vcl.Dialogs.hpp>
+#include <IdSSLOpenSSL.hpp>
+#include <IdIntercept.hpp>
+#include <IdInterceptThrottler.hpp>
+//---------------------------------------------------------------------------
+class PreuzimanjeThread : public TThread
+{
+private:
+	TIdInterceptThrottler *Throttler;
+protected:
+	void __fastcall Execute();
+public:
+	TProgressBar *ProgressBar;
+	TIdHTTP *HttpClient;
+	TIdSSLIOHandlerSocketOpenSSL *OpenSSL;
+	String www;
+	int brzinaSkidanja;
+	TLabel *LabelPostotak;
+	__fastcall PreuzimanjeThread(bool CreateSuspended, TProgressBar *ProgressBar, TIdHTTP *HttpClient, TIdSSLIOHandlerSocketOpenSSL *OpenSSL, String www, TLabel *LabelPostotak, int brzinaSkidanja);
+};
+//---------------------------------------------------------------------------
+#endif

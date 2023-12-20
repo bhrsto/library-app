@@ -1,0 +1,91 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "dodavanjeNadzor.h"
+#include "Main.h"
+#include "Registracija.h"
+#include "nadzor.h"
+#include "Unit1.h"
+
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TFdodavanjeNadzor *FdodavanjeNadzor;
+//---------------------------------------------------------------------------
+__fastcall TFdodavanjeNadzor::TFdodavanjeNadzor(TComponent* Owner, TXMLDocument *xmlDoc, bool n)
+	: TForm(Owner), XMLDocument2(xmlDoc), n(n)
+{
+
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TFdodavanjeNadzor::FormCreate(TObject *Sender)
+{
+    promjeni(this);
+}
+
+
+void __fastcall dodajNadzor(TXMLDocument *XMLDoc,String imeN, String prezimeN, String vrijemeN){
+	_di_IXMLnadzorType nadzor = Getnadzor(XMLDoc);
+	_di_IXMLkorsinikType korsinik = nadzor->Add();
+
+	korsinik->ime = imeN;
+	korsinik->prezime = prezimeN;
+	korsinik->vrijeme = vrijemeN;
+	XMLDoc->SaveToFile(XMLDoc->FileName);
+}
+//---------------------------------------------------------------------------
+void __fastcall TFdodavanjeNadzor::BpotvrdiNClick(TObject *Sender)
+{
+	 if(n == false){
+		if (!Eime->Text.IsEmpty() && !Eprezime->Text.IsEmpty() && !Evrijeme->Text.IsEmpty()) {
+			String imeN, prezimeN, vrijemeN;
+
+			imeN = Eime->Text;
+			prezimeN = Eprezime->Text;
+			vrijemeN = Evrijeme->Text;
+
+			xml *XML1 = new xml(XMLDocument2, imeN, prezimeN, vrijemeN);
+			XML1->dodajNadzor();
+			delete XML1;
+
+			dodajNadzor(XMLDocument2, imeN, prezimeN, vrijemeN);
+			ModalResult = mrOk;
+		}
+		else{
+			ShowMessage("Sva polja trebaju biti unesena!!!");
+		}
+	 }
+
+	 else{
+
+		 if (!Eime->Text.IsEmpty() && !Eprezime->Text.IsEmpty() && !Evrijeme->Text.IsEmpty()){
+			String imeN = Eime->Text;
+			String prezimeN = Eprezime->Text;
+			String vrijemeN = Evrijeme->Text;
+
+			if (OdabraniIndeks != -1)
+			{
+			   _di_IXMLnadzorType nadzor = Getnadzor(XMLDocument2);
+				nadzor->korsinik[OdabraniIndeks]->ime = imeN;
+				nadzor->korsinik[OdabraniIndeks]->prezime = prezimeN;
+				nadzor->korsinik[OdabraniIndeks]->vrijeme = vrijemeN;
+				XMLDocument2->SaveToFile(XMLDocument2->FileName);
+
+			}
+			ModalResult = mrOk;
+		}
+		else
+		{
+			ShowMessage("Sva polja trebaju biti unesena!!!");
+		}
+   }
+
+
+
+
+
+}
+//---------------------------------------------------------------------------

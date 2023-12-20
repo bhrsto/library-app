@@ -1,0 +1,165 @@
+
+//---------------------------------------------------------------------------
+#include "WebModuleUnit1.h"
+#include <DateUtils.hpp>
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+
+TComponentClass WebModuleClass = __classid(TWebModule1);
+//---------------------------------------------------------------------------
+__fastcall TWebModule1::TWebModule1(TComponent* Owner)
+	: TWebModule(Owner)
+{
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWebModule1::WebModule1DefaultHandlerAction(TObject *Sender, TWebRequest *Request,
+		  TWebResponse *Response, bool &Handled)
+{
+  Response->Content =
+	"<html>"
+	"<head><title>Web Server Application</title></head>"
+	"<body>Web Server Application</body>"
+	"</html>";
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TWebModule1::WebModule1zakasnjelePosudbeAction(TObject *Sender, TWebRequest *Request,
+		  TWebResponse *Response, bool &Handled)
+{
+	String xmlResponse = "<izvjestaj>";
+
+    String trenutniKorisnik = "";
+    TDateTime vrijeme = Now();
+
+    String sqlKorisniciQuery = "SELECT * FROM korisnici";
+    ADOQueryKORISNICI->SQL->Text = sqlKorisniciQuery;
+    ADOQueryKORISNICI->Open();
+
+    while (!ADOQueryKORISNICI->Eof)
+    {
+        String ime = ADOQueryKORISNICI->FieldByName("ime")->AsString;
+        String prezime = ADOQueryKORISNICI->FieldByName("prezime")->AsString;
+        int korisnikID = ADOQueryKORISNICI->FieldByName("ID")->AsInteger;
+
+        xmlResponse += "<korisnik>";
+        xmlResponse += "<ime>" + ime + "</ime>";
+        xmlResponse += "<prezime>" + prezime + "</prezime>";
+
+        String sqlKnjigeQuery = "SELECT * FROM knjige WHERE idKorisnik = :korisnikID";
+        ADOQueryKNJIGE->SQL->Text = sqlKnjigeQuery;
+        ADOQueryKNJIGE->Parameters->ParamByName("korisnikID")->Value = korisnikID;
+        ADOQueryKNJIGE->Open();
+
+        while (!ADOQueryKNJIGE->Eof)
+        {
+            String nazivKnjige = ADOQueryKNJIGE->FieldByName("naziv")->AsString;
+            TDateTime datumVracanja = ADOQueryKNJIGE->FieldByName("datumVracanja")->AsDateTime;
+
+            if (vrijeme > datumVracanja)
+			{
+				double iznosDuga = DaysBetween(datumVracanja, vrijeme) * 0.5;
+                xmlResponse += "<knjiga>";
+				xmlResponse += "<naziv>" + nazivKnjige + "</naziv>";
+				xmlResponse += "<datumVracanja>" + FormatDateTime("dd.mm.yyyy", datumVracanja) + "</datumVracanja>";
+				xmlResponse += "<dugovanje>" + FloatToStr(iznosDuga) + "€" + "</dugovanje>";
+                xmlResponse += "</knjiga>";
+			}
+
+			ADOQueryKNJIGE->Next();
+		}
+
+		xmlResponse += "</korisnik>";
+		ADOQueryKORISNICI->Next();
+    }
+
+    // Zatvorite otvorene upite
+    ADOQueryKORISNICI->Close();
+    ADOQueryKNJIGE->Close();
+
+    // Završite XML odgovor
+    xmlResponse += "</izvjestaj>";
+
+    // Postavite ContentType na "application/xml" za XML format
+    Response->ContentType = "application/xml; charset=UTF-8";
+
+    // Postavite odgovor na generirani XML
+	Response->Content = xmlResponse;
+
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TWebModule1::WebModule1dodavanjeRadnikaAction(TObject *Sender, TWebRequest *Request,
+		  TWebResponse *Response, bool &Handled)
+{
+	String Ime = Request->QueryFields->Values["Ime"];
+	String Prezime = Request->QueryFields->Values["Prezime"];
+	String Sifra = Request->QueryFields->Values["Sifra"];
+	String Admin = Request->QueryFields->Values["Admin"];
+
+	if (Ime.IsEmpty() || Prezime.IsEmpty() || Sifra.IsEmpty()) {
+		Response->Content = "Ne valja";
+	}else{
+		ADOQueryLOG->SQL->Text = "INSERT INTO login (ime, prezime, sifra, admin) VALUES (:ime, :prezime, :sifra, :admin)";
+		ADOQueryLOG->Parameters->ParamByName("ime")->Value = Ime; // Ime je varijabla iz vašeg zahtjeva
+		ADOQueryLOG->Parameters->ParamByName("prezime")->Value = Prezime; // Prezime je varijabla iz vašeg zahtjeva
+		ADOQueryLOG->Parameters->ParamByName("sifra")->Value = Sifra; // Sifra je varijabla iz vašeg zahtjeva
+		ADOQueryLOG->Parameters->ParamByName("admin")->Value = Admin;
+		ADOQueryLOG->ExecSQL();
+
+		Response->Content = "Radnik je uspjesno dodam!";
+		Response->ContentType = "text/plain";
+		ADOQueryLOG->Close();
+	}
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWebModule1::WebModule1urediRadnikaAction(TObject *Sender, TWebRequest *Request,
+		  TWebResponse *Response, bool &Handled)
+{
+	String Ime = Request->QueryFields->Values["Ime"];
+	String Prezime = Request->QueryFields->Values["Prezime"];
+	String ID = Request->QueryFields->Values["ID"];
+
+	if (Ime.IsEmpty() || Prezime.IsEmpty() || ID.IsEmpty()) {
+		Response->Content = "Aturiranje radnika ne valja";
+	}else{
+		ADOQueryLOG->SQL->Text = "UPDATE login SET ime = :ime, prezime = :prezime WHERE ID = :ID";
+		ADOQueryLOG->Parameters->ParamByName("ime")->Value = Ime;
+		ADOQueryLOG->Parameters->ParamByName("prezime")->Value = Prezime;
+		ADOQueryLOG->Parameters->ParamByName("ID")->Value = ID;
+		ADOQueryLOG->ExecSQL();
+
+		Response->Content = "Radnik je uspjesno azuriran!";
+		Response->ContentType = "text/plain";
+		ADOQueryLOG->Close();
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWebModule1::WebModule1izbrisiRadnikaAction(TObject *Sender, TWebRequest *Request,
+          TWebResponse *Response, bool &Handled)
+{
+	String Ime = Request->QueryFields->Values["Ime"];
+	String Prezime = Request->QueryFields->Values["Prezime"];
+	String ID = Request->QueryFields->Values["ID"];
+
+	if (Ime.IsEmpty() || Prezime.IsEmpty() || ID.IsEmpty()) {
+		Response->Content = "Brisanje radnika neuspjesno";
+	}else{
+		ADOQueryLOG->SQL->Text = "DELETE FROM login WHERE ime = :ime AND prezime = :prezime AND ID = :ID";
+		ADOQueryLOG->Parameters->ParamByName("ime")->Value = Ime;
+		ADOQueryLOG->Parameters->ParamByName("prezime")->Value = Prezime;
+		ADOQueryLOG->Parameters->ParamByName("ID")->Value = ID;
+		ADOQueryLOG->ExecSQL();
+
+		Response->Content = "Radnik je uspjesno izbrisan!";
+		Response->ContentType = "text/plain";
+		ADOQueryLOG->Close();
+	}
+}
+//---------------------------------------------------------------------------
+

@@ -1,0 +1,48 @@
+//---------------------------------------------------------------------------
+
+#ifndef LoginH
+#define LoginH
+//---------------------------------------------------------------------------
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.Forms.hpp>
+#include <Data.DB.hpp>
+#include <Data.Win.ADODB.hpp>
+#include <Xml.XMLDoc.hpp>
+#include <Xml.xmldom.hpp>
+#include <Xml.XMLIntf.hpp>
+
+//---------------------------------------------------------------------------
+class TLoginForm : public TForm
+{
+__published:	// IDE-managed Components
+	TButton *BLogin;
+	TEdit *Eime;
+	TEdit *Eprezime;
+	TLabel *Lime;
+	TLabel *Lprezime;
+	TEdit *Esifra;
+	TLabel *Lsifra;
+	TXMLDocument *XMLDocument1;
+	void __fastcall BLoginClick(TObject *Sender);
+	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
+private:	// User declarations
+public:		// User declarations
+	__fastcall TLoginForm(TComponent* Owner);
+	 bool LoggedIn;
+};
+//---------------------------------------------------------------------------
+class LoginProvjera{
+private:
+	String ime, prezime, sifra;
+public:
+	bool provjera;
+
+
+};
+//-----------------------------------------------------------------------------
+extern PACKAGE TLoginForm *LoginForm;
+extern int admin;
+//---------------------------------------------------------------------------
+#endif

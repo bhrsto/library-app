@@ -1,0 +1,89 @@
+#include <vcl.h>
+#pragma hdrstop
+
+#include "Postavke.h"
+#include <registry.hpp>
+#include "translateForm.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TFPostavke *FPostavke;
+//---------------------------------------------------------------------------
+__fastcall TFPostavke::TFPostavke(TComponent* Owner)
+	: TForm(Owner)
+{
+   translation["Label1"] = {
+		{
+			{"EN", "Select a font"},
+			{"HR", "Izaberite zeljeni font"}
+		}
+	};
+
+	translation["Label2"] = {
+		{
+			{"EN", "Font size"},
+			{"HR", "Velicna fonta"}
+		}
+	};
+
+	translation["BPromjeniBoju"] = {
+		{
+			{"EN", "Change color"},
+			{"HR", "Promjeni boju"}
+		}
+	};
+
+	translation["BSpremi"] = {
+		{
+			{"EN", "Save"},
+			{"HR", "Spremi"}
+		}
+	};
+
+   translateForm(this, jezik, translation);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TFPostavke::BSpremiClick(TObject *Sender)
+{
+	ModalResult = mrOk;
+
+	odabraniFont = CBFont->Text;
+	if(EVelicinaFonta->Text != "" && EVelicinaFonta->Text != " "){
+		velicinaFonta = StrToInt(EVelicinaFonta->Text);
+	}
+
+	if (ColorDialog1->Color != clBlack) {
+		bojaPozadine = ColorDialog1->Color;
+	}
+
+	TIniFile* ini = new TIniFile(GetCurrentDir() + "\\ini.ini");
+	ini->WriteString("Main Window", "Font", odabraniFont);
+	ini->WriteInteger("Main Window", "FontSize", velicinaFonta);
+	ini->WriteInteger("Main Window", "BackgroundColor", bojaPozadine);
+
+	delete ini;
+	promjeni(this);
+
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TFPostavke::FormCreate(TObject *Sender)
+{
+	promjeni(this);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TFPostavke::BPromjeniBojuClick(TObject *Sender)
+{
+	if (ColorDialog1->Execute())
+	{
+		bojaPozadine =  ColorDialog1->Color;
+	}
+}
+//---------------------------------------------------------------------------
+
+
+
+

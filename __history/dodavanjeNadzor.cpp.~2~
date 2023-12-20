@@ -1,0 +1,41 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "dodavanjeNadzor.h"
+#include "Main.h"
+#include "Registracija.h"
+#include "nadzor.h"
+
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TFdodavanjeNadzor *FdodavanjeNadzor;
+//---------------------------------------------------------------------------
+__fastcall TFdodavanjeNadzor::TFdodavanjeNadzor(TComponent* Owner)
+	: TForm(Owner)
+{
+
+}
+//---------------------------------------------------------------------------
+void __fastcall TFdodavanjeNadzor::FormCreate(TObject *Sender)
+{
+    promjeni(this);
+}
+//---------------------------------------------------------------------------
+void __fastcall TFdodavanjeNadzor::Button1Click(TObject *Sender)
+{
+	if (!Eime->Text.IsEmpty() && !Eprezime->Text.IsEmpty() && !Evrijeme->Text.IsEmpty()) {
+        String imeN, prezimeN, vrijemeN;
+
+        imeN = Eime->Text;       // Ispravite "text" u "Text"
+        prezimeN = Eprezime->Text;
+        vrijemeN = Evrijeme->Text;
+
+		FRegistracija->dodajNadzor(imeN, prezimeN, vrijemeN);
+	}else{
+		ShowMessage("Sva polja trebaju biti unesena!!!");
+	}
+}
+//---------------------------------------------------------------------------

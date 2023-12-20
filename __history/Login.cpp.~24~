@@ -1,0 +1,123 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "Login.h"
+#include "dataModule.h"
+#include "Main.h"
+#include "nadzor.h"
+#include <Xml.XMLDoc.hpp>
+#include <Xml.xmldom.hpp>
+#include <XMLIntf.hpp>
+#include "XMLhandler.h"
+
+
+
+
+
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma link "uTPLb_BaseNonVisualComponent"
+#pragma link "uTPLb_Hash"
+#pragma link "uTPLb_CryptographicLibrary"
+#pragma resource "*.dfm"
+
+int globalID = 0;
+String jezik;
+
+TLoginForm *LoginForm;
+//---------------------------------------------------------------------------
+__fastcall TLoginForm::TLoginForm(TComponent* Owner)
+	: TForm(Owner)
+{
+	Esifra->PasswordChar = '*';
+	ucitaj();
+	promjeni(this);
+
+   translation["Lime"] = {
+		{
+			{"EN", "Name:"},
+			{"HR", "Ime:"}
+		}
+	};
+
+	translation["Lprezime"] = {
+		{
+			{"EN", "Surname:"},
+			{"HR", "Prezime:"}
+		}
+	};
+
+	translation["Lsifra"] = {
+		{
+			{"EN", "Password:"},
+			{"HR", "Sifra:"}
+		}
+	};
+
+	translation["BLogin"] = {
+		{
+			{"EN", "Confirm"},
+			{"HR", "Potvrdi"}
+		}
+	};
+
+}
+//---------------------------------------------------------------------------
+void __fastcall TLoginForm::BLoginClick(TObject *Sender)
+{
+	String Ime = Eime->Text;
+	String Prezime = Eprezime->Text;
+	String Sifra = Esifra->Text;
+
+	String sol = Ime + Prezime;
+	HashLog->HashId = "native.hash.SHA-256";
+	HashLog->HashString(sol, TEncoding::UTF8);
+
+
+	String sazetaSol = Stream_To_Hex(HashLog->HashOutputValue);
+	String sifraSaSoli = sazetaSol + Sifra;
+
+	HashLog->HashId = "native.hash.SHA-512";
+	HashLog->HashString(sifraSaSoli, TEncoding::UTF8);
+	String pravaSifra = Stream_To_Hex(HashLog->HashOutputValue);
+
+	DataModule1 = new TDataModule1(this);
+	DataModule1->ADOQueryLOG->SQL->Text = "SELECT * FROM login WHERE ime = :Ime AND prezime = :Prezime AND sifra = :Sifra";
+	DataModule1->ADOQueryLOG->Parameters->ParamByName("ime")->Value = Ime;
+	DataModule1->ADOQueryLOG->Parameters->ParamByName("prezime")->Value = Prezime;
+	DataModule1->ADOQueryLOG->Parameters->ParamByName("sifra")->Value = pravaSifra;
+	DataModule1->ADOQueryLOG->Open();
+
+	if (DataModule1->ADOQueryLOG->RecordCount > 0) {
+		ModalResult = mrOk;
+		globalID = DataModule1->ADOQueryLOG->FieldByName("ID")->AsInteger;
+	}
+	else {
+		ShowMessage("Pogrešno ime ili lozinka!");
+	}
+
+}
+
+
+
+
+//---------------------------------------------------------------------------
+
+void __fastcall TLoginForm::FormClose(TObject *Sender, TCloseAction &Action)
+{
+		 delete DataModule1;
+}
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+
+void __fastcall TLoginForm::ComboBox1Change(TObject *Sender)
+{
+	translateForm(this, ComboBox1->Text, translation);
+	jezik = ComboBox1->Text;
+}
+//---------------------------------------------------------------------------
+

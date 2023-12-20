@@ -1,0 +1,80 @@
+//---------------------------------------------------------------------------
+
+#include <System.hpp>
+#pragma hdrstop
+
+#include "skidanjeDretva.h"
+#pragma package(smart_init)
+//---------------------------------------------------------------------------
+
+//   Important: Methods and properties of objects in VCL can only be
+//   used in a method called using Synchronize, for example:
+//
+//      Synchronize(&UpdateCaption);
+//
+//   where UpdateCaption could look like:
+//
+//      void __fastcall PreuzimanjeThread::UpdateCaption()
+//      {
+//        Form1->Caption = "Updated in a thread";
+//      }
+//---------------------------------------------------------------------------
+
+__fastcall PreuzimanjeThread::PreuzimanjeThread(bool CreateSuspended, TProgressBar *ProgressBar, TIdHTTP *HttpClient , TIdSSLIOHandlerSocketOpenSSL *OpenSSL, String www, TLabel *LabelPostotak, int brzinaSkidanja)
+	: TThread(CreateSuspended), ProgressBar(ProgressBar), HttpClient(HttpClient) , OpenSSL(OpenSSL), www(www), LabelPostotak(LabelPostotak), brzinaSkidanja(brzinaSkidanja)
+{
+	 Throttler = new TIdInterceptThrottler(NULL);
+	 Throttler->BitsPerSec = brzinaSkidanja*1024*8; // 250 KB/s
+	 HttpClient->Intercept = Throttler;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall PreuzimanjeThread::Execute()
+{
+	TFileStream *FileStream = new TFileStream("nova_baza.accdb", fmCreate);
+
+	try
+	{
+		int trenutniNapredak = 0;
+		int postotak = 0;
+
+		Synchronize([&]()
+        {
+			ProgressBar->Max = 100;
+			ProgressBar->Position = 0; // Postavite poèetnu poziciju na 0%
+		});
+
+		HttpClient->Get(www, FileStream);
+
+		while (!Terminated)
+		{
+			Sleep(100);
+			trenutniNapredak++;
+
+            // Ažurirajte progres bar i prikažite trenutni napredak
+		 Synchronize([&]()
+			{
+				ProgressBar->Position = trenutniNapredak;
+				if (trenutniNapredak <= 100)
+				{
+					postotak = (trenutniNapredak * 100) / 100;
+					LabelPostotak->Caption = IntToStr(postotak) + "%";
+				}
+			});
+
+		if (trenutniNapredak > 100)
+		break;;
+
+
+		}
+	}
+	catch (Exception &E)
+	{
+		// Obradite greške preuzimanja ovdje
+	}
+
+	// Oslobodite resurse
+	delete FileStream;;
+}
+
+//---------------------------------------------------------------------------

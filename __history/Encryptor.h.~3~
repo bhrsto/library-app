@@ -1,0 +1,34 @@
+//---------------------------------------------------------------------------
+#include <System.hpp>
+#ifndef EncryptorH
+#define EncryptorH
+//---------------------------------------------------------------------------
+#endif
+
+#include "Main.h"
+
+
+class Encryptor {
+	private:
+		TCodec* codec;
+		TSignatory *Signatory;
+		TCryptographicLibrary *CryptographicLibrary1;
+		TMemoryStream *javniKljucStream; // Stream za uèitavanje javnog kljuèa
+		TMemoryStream *privatniKljucStream;
+
+	public:
+		Encryptor( TCodec* codec, TCryptographicLibrary *CryptographicLibrary1);
+		Encryptor(TCodec* codec, TCryptographicLibrary *CryptographicLibrary1, TSignatory *Signatory1);
+		~Encryptor();
+
+		// Metoda za simetrièno kriptiranje poruke
+		String EncryptSymmetric(String& tekst);
+		String DecryptSymmetric(String& kriptiraniTekst);
+
+		String EncryptAsymmetric(String& tekst);
+		String DecryptAsymmetric(String& kriptiraniTekst);
+
+
+		bool LoadPublicKey(const String& publicKeyFileName);
+		bool LoadPrivateKey(const String& privateKeyFileName);
+};

@@ -1,0 +1,58 @@
+//---------------------------------------------------------------------------
+
+#ifndef RegistracijaH
+#define RegistracijaH
+//---------------------------------------------------------------------------
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.Forms.hpp>
+#include <Vcl.Grids.hpp>
+#include <Data.DB.hpp>
+#include <Vcl.DBGrids.hpp>
+#include <Vcl.DBCtrls.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <Xml.XMLDoc.hpp>
+#include <Xml.xmldom.hpp>
+#include <Xml.XMLIntf.hpp>
+#include <Vcl.Mask.hpp>
+#include <Vcl.ComCtrls.hpp>
+#include <Xml.XmlTransform.hpp>
+//---------------------------------------------------------------------------
+
+
+class TFRegistracija : public TForm
+{
+__published:	// IDE-managed Components
+	TDBGrid *DBGrid1;
+	TDBNavigator *DBNavigator1;
+	TLabel *Label1;
+	TDBEdit *DBEdit1;
+	TLabel *Label2;
+	TDBEdit *DBEdit2;
+	TLabel *Label3;
+	TDBEdit *DBEdit3;
+	TLabel *Label4;
+	TDBEdit *DBEdit4;
+	TLabel *Label5;
+	TDBEdit *DBEdit5;
+	TListView *ListView1;
+	TXMLDocument *XMLDocument2;
+	TButton *Bobrisi;
+	TButton *Bdodaj;
+	TButton *Buredi;
+	void __fastcall FormCreate(TObject *Sender);
+	void __fastcall BobrisiClick(TObject *Sender);
+	void __fastcall BdodajClick(TObject *Sender);
+	void __fastcall BurediClick(TObject *Sender);
+private:	// User declarations
+public:		// User declarations
+	__fastcall TFRegistracija(TComponent* Owner);
+	void __fastcall dodajNadzor(String imeN, String prezimeN, String vrijemeN);
+};
+//---------------------------------------------------------------------------
+extern PACKAGE TFRegistracija *FRegistracija;
+void __fastcall napuniList(TXMLDocument *XMLDoc, TListView *ListView);
+
+//---------------------------------------------------------------------------
+#endif

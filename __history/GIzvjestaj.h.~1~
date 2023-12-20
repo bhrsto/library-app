@@ -1,0 +1,20 @@
+//---------------------------------------------------------------------------
+
+#ifndef GIzvjestajH
+#define GIzvjestajH
+//---------------------------------------------------------------------------
+#endif
+
+#include <vcl.h> // za osnovne VCL tipove i klase
+#include <System.Classes.hpp> // za TFileStream
+
+
+class Izvjestaj {
+	private:
+		String naslov;
+		String sadrzaj;
+
+	public:
+		Izvjestaj(String naslov, String sadrzaj);
+		void GenerirajIzvjestaj();
+};

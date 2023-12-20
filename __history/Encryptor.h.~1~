@@ -1,0 +1,32 @@
+//---------------------------------------------------------------------------
+
+#ifndef EncryptorH
+#define EncryptorH
+//---------------------------------------------------------------------------
+#endif
+
+
+class Encryptor {
+	private:
+		String symmetricKey; // Simetrièni kljuè
+		String publicKey;
+
+	public:
+		Encryptor();
+		~Encryptor();
+
+		// Metoda za simetrièno kriptiranje poruke
+		String EncryptSymmetric(const String& message);
+
+		// Metoda za dekriptiranje simetrièno kriptirane poruke
+		String DecryptSymmetric(const String& ciphertext);
+
+		// Metoda za asimetrièno kriptiranje poruke (koristi javni kljuè)
+		String EncryptAsymmetric(const String& message);
+
+		// Metoda za dekriptiranje asimetrièno kriptirane poruke (koristi privatni kljuè)
+		String DecryptAsymmetric(const String& ciphertext);
+
+		// Metoda za izraèunavanje hash vrijednosti poruke
+		String ComputeHash(const String& message);
+};

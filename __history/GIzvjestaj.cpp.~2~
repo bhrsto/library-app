@@ -1,0 +1,53 @@
+//---------------------------------------------------------------------------
+
+#pragma hdrstop
+
+#include "GIzvjestaj.h"
+#include "dataModule.h"
+
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+
+Izvjestaj::Izvjestaj(String naslov, String sadrzaj) : naslov(naslov), sadrzaj(sadrzaj) {}
+
+void Izvjestaj::GenerirajIzvjestaj() {
+	TStringList *izvjestaj = new TStringList;
+	String trenutniKorisnik = "";
+
+	String sqlKorisniciQuery = "SELECT * FROM korisnici";
+	DataModule1->ADOQueryKORISNICI->SQL->Text = sqlKorisniciQuery;
+	DataModule1->ADOQueryKORISNICI->Open();
+
+	while (!DataModule1->ADOQueryKORISNICI->Eof) {
+		String ime = DataModule1->ADOQueryKORISNICI->FieldByName("ime")->AsString;
+		String prezime = DataModule1->ADOQueryKORISNICI->FieldByName("prezime")->AsString;
+		int korisnikID = DataModule1->ADOQueryKORISNICI->FieldByName("ID")->AsInteger;
+
+		String sqlKnjigeQuery = "SELECT * FROM knjige WHERE idKorisnik = :korisnikID";
+		DataModule1->ADOQueryKNJIGE->SQL->Text = sqlKnjigeQuery;
+		DataModule1->ADOQueryKNJIGE->Parameters->ParamByName("korisnikID")->Value = korisnikID;
+		DataModule1->ADOQueryKNJIGE->Open();
+
+		String knjigeText;
+		while (!DataModule1->ADOQueryKNJIGE->Eof) {
+			String nazivKnjige = DataModule1->ADOQueryKNJIGE->FieldByName("naziv")->AsString;
+			TDateTime datumPosudbe = DataModule1->ADOQueryKNJIGE->FieldByName("datumPosudivanja")->AsDateTime;
+
+			knjigeText += FormatDateTime("dd.mm.yyyy", datumPosudbe) + ", " + nazivKnjige + "\n";
+			DataModule1->ADOQueryKNJIGE->Next();
+		}
+
+		izvjestaj->Add(naslov);
+		izvjestaj->Add("Korisnik: " + ime + " " + prezime + "\n" + "posudeno:\n" + knjigeText);
+
+		DataModule1->ADOQueryKORISNICI->Next();
+	}
+
+	DataModule1->ADOQueryKORISNICI->Close();
+	izvjestaj->SaveToFile("Izvjestaj.txt");
+	delete izvjestaj;
+
+	}
+
+
+

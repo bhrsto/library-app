@@ -1,0 +1,154 @@
+object FRegistracija: TFRegistracija
+  Left = 0
+  Top = 0
+  Caption = 'Registracija'
+  ClientHeight = 334
+  ClientWidth = 568
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Label1: TLabel
+    Left = 63
+    Top = 176
+    Width = 11
+    Height = 13
+    Caption = 'ID'
+    FocusControl = DBEdit1
+  end
+  object Label2: TLabel
+    Left = 58
+    Top = 203
+    Width = 16
+    Height = 13
+    Caption = 'ime'
+    FocusControl = DBEdit2
+  end
+  object Label3: TLabel
+    Left = 34
+    Top = 230
+    Width = 37
+    Height = 13
+    Caption = 'prezime'
+    FocusControl = DBEdit3
+  end
+  object Label4: TLabel
+    Left = 50
+    Top = 263
+    Width = 21
+    Height = 13
+    Caption = 'sifra'
+    FocusControl = DBEdit4
+  end
+  object Label5: TLabel
+    Left = 46
+    Top = 290
+    Width = 28
+    Height = 13
+    Caption = 'admin'
+    FocusControl = DBEdit5
+  end
+  object DBGrid1: TDBGrid
+    Left = 80
+    Top = 31
+    Width = 441
+    Height = 81
+    DataSource = DataModule1.DataSource1
+    TabOrder = 0
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -11
+    TitleFont.Name = 'Tahoma'
+    TitleFont.Style = []
+    Columns = <
+      item
+        Expanded = False
+        FieldName = 'ID'
+        Width = 80
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'ime'
+        Width = 80
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'prezime'
+        Width = 80
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'sifra'
+        Width = 80
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'admin'
+        Width = 80
+        Visible = True
+      end>
+  end
+  object DBNavigator1: TDBNavigator
+    Left = 176
+    Top = 118
+    Width = 240
+    Height = 25
+    DataSource = DataModule1.DataSource1
+    TabOrder = 1
+  end
+  object DBEdit1: TDBEdit
+    Left = 80
+    Top = 173
+    Width = 134
+    Height = 21
+    DataField = 'ID'
+    DataSource = DataModule1.DataSource1
+    TabOrder = 2
+  end
+  object DBEdit2: TDBEdit
+    Left = 80
+    Top = 200
+    Width = 348
+    Height = 21
+    DataField = 'ime'
+    DataSource = DataModule1.DataSource1
+    TabOrder = 3
+  end
+  object DBEdit3: TDBEdit
+    Left = 80
+    Top = 227
+    Width = 348
+    Height = 21
+    DataField = 'prezime'
+    DataSource = DataModule1.DataSource1
+    TabOrder = 4
+  end
+  object DBEdit4: TDBEdit
+    Left = 80
+    Top = 260
+    Width = 348
+    Height = 21
+    DataField = 'sifra'
+    DataSource = DataModule1.DataSource1
+    TabOrder = 5
+  end
+  object DBEdit5: TDBEdit
+    Left = 80
+    Top = 287
+    Width = 134
+    Height = 21
+    DataField = 'admin'
+    DataSource = DataModule1.DataSource1
+    TabOrder = 6
+  end
+end

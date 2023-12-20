@@ -1,0 +1,94 @@
+object LoginForm: TLoginForm
+  Left = 0
+  Top = 0
+  Caption = 'LoginForm'
+  ClientHeight = 231
+  ClientWidth = 271
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  OnClose = FormClose
+  DesignSize = (
+    271
+    231)
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Lime: TLabel
+    Left = 24
+    Top = 35
+    Width = 18
+    Height = 13
+    Anchors = [akLeft, akRight]
+    Caption = 'Ime'
+  end
+  object Lprezime: TLabel
+    Left = 24
+    Top = 91
+    Width = 37
+    Height = 13
+    Anchors = [akLeft, akRight]
+    Caption = 'Prezime'
+  end
+  object Lsifra: TLabel
+    Left = 24
+    Top = 147
+    Width = 22
+    Height = 13
+    Anchors = [akLeft, akRight]
+    Caption = 'Sifra'
+  end
+  object BLogin: TButton
+    Left = 118
+    Top = 184
+    Width = 75
+    Height = 25
+    Anchors = [akLeft, akRight]
+    Caption = 'Potvrdi'
+    TabOrder = 0
+    OnClick = BLoginClick
+  end
+  object Eime: TEdit
+    Left = 88
+    Top = 32
+    Width = 137
+    Height = 21
+    Anchors = [akLeft, akRight]
+    TabOrder = 1
+  end
+  object Eprezime: TEdit
+    Left = 88
+    Top = 88
+    Width = 137
+    Height = 21
+    Anchors = [akLeft, akRight]
+    TabOrder = 2
+  end
+  object Esifra: TEdit
+    Left = 88
+    Top = 144
+    Width = 137
+    Height = 21
+    Anchors = [akLeft, akRight]
+    TabOrder = 3
+  end
+  object XMLDocument1: TXMLDocument
+    FileName = 'C:\Users\Hrsto\OneDrive\Radna povr'#353'ina\Projekt ntp\nadzor.xml'
+    Options = [doNodeAutoCreate, doNodeAutoIndent, doAttrNull, doAutoPrefix, doNamespaceDecl]
+    Left = 216
+    Top = 187
+  end
+  object HashLog: THash
+    CryptoLibrary = CryptographicLibrary1
+    Left = 16
+    Top = 184
+    HashId = 'native.hash.SHA-512'
+  end
+  object CryptographicLibrary1: TCryptographicLibrary
+    Left = 80
+    Top = 184
+  end
+end

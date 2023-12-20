@@ -1,0 +1,53 @@
+#include <vcl.h>
+#pragma hdrstop
+
+#include "Postavke.h"
+#include "Main.h"
+#include <registry.hpp>
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TFPostavke *FPostavke;
+//---------------------------------------------------------------------------
+__fastcall TFPostavke::TFPostavke(TComponent* Owner)
+	: TForm(Owner)
+{
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TFPostavke::BSpremiClick(TObject *Sender)
+{
+	ModalResult = mrOk;
+
+	String odabraniFont = CBFont->Text;
+	int velicinaFonta = StrToInt(EVelicinaFonta->Text);
+	TColor bojaPozadine = ColorDialog1->Color;
+
+	TIniFile* ini = new TIniFile(GetCurrentDir() + "\\ini.ini");
+	ini->WriteString("Main Window", "Font", odabraniFont);
+	ini->WriteInteger("Main Window", "FontSize", velicinaFonta);
+	//ini->WriteInteger("Main Window", "FontColor", bojaFonta);
+	ini->WriteInteger("Main Window", "BackgroundColor", bojaFonta);
+
+	delete ini;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TFPostavke::FormCreate(TObject *Sender)
+{
+	Font = MainForm->Font;
+	ColorDialog1->Color = MainForm->Font->Color;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TFPostavke::BPromjeniBojuClick(TObject *Sender)
+{
+	if (ColorDialog1->Execute())
+	{
+		TColor novaBoja = ColorDialog1->Color;
+		MainForm->Font->Color = novaBoja;
+	}
+}
+//---------------------------------------------------------------------------
+

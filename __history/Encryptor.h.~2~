@@ -1,0 +1,25 @@
+//---------------------------------------------------------------------------
+#include <System.hpp>
+#ifndef EncryptorH
+#define EncryptorH
+//---------------------------------------------------------------------------
+#endif
+
+#include "Main.h"
+
+
+class Encryptor {
+	private:
+		String symmetricKey; // Simetrièni kljuè
+		String publicKey;
+		TCodec* codec;
+		TCryptographicLibrary *CryptographicLibrary1;
+
+	public:
+		Encryptor( TCodec* codec, TCryptographicLibrary *CryptographicLibrary1);
+		~Encryptor();
+
+		// Metoda za simetrièno kriptiranje poruke
+		String EncryptSymmetric(String& tekst);
+		String DecryptSymmetric(String& kriptiraniTekst);
+};

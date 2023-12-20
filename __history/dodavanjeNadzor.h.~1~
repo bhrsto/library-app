@@ -1,0 +1,28 @@
+//---------------------------------------------------------------------------
+
+#ifndef dodavanjeNadzorH
+#define dodavanjeNadzorH
+//---------------------------------------------------------------------------
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.Forms.hpp>
+//---------------------------------------------------------------------------
+class TFdodavanjeNadzor : public TForm
+{
+__published:	// IDE-managed Components
+	TEdit *Edit1;
+	TLabel *Lprezime;
+	TEdit *Eime;
+	TLabel *Lime;
+	TEdit *Edit3;
+	TLabel *Lvrijeme;
+	TButton *Button1;
+private:	// User declarations
+public:		// User declarations
+	__fastcall TFdodavanjeNadzor(TComponent* Owner);
+};
+//---------------------------------------------------------------------------
+extern PACKAGE TFdodavanjeNadzor *FdodavanjeNadzor;
+//---------------------------------------------------------------------------
+#endif

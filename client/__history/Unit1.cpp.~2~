@@ -1,0 +1,65 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+#include<string>
+#include <future>
+#include <string>
+#include <vector>
+#include "Unit1.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm1 *Form1;
+//---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner)
+	: TForm(Owner)
+{
+}
+//---------------------------------------------------------------------------
+
+
+// ...
+
+void __fastcall TForm1::Button1Click(TObject *Sender)
+{
+    TCP_klijent->Connect();
+    if (TCP_klijent->Connected()) {
+        TCP_klijent->Socket->WriteLn(Eime->Text);
+        TCP_klijent->Socket->WriteLn(Eprezime->Text);
+        TCP_klijent->Socket->WriteLn(Esifra->Text); // pošalji prvi broj
+		std::vector<String> knjige;
+		std::future<std::vector<std::string>> future = std::async([&]() {
+			while (true) {
+					String receivedData = TCP_klijent->Socket->ReadLn();
+					if (receivedData == "KRAJ") {
+						break; // Kraj podataka
+					}
+					knjige.push_back(receivedData.c_str());
+				}
+
+			return knjige;
+		});
+
+		//TCP_klijent->Disconnect();
+
+        // Dobijanje rezultata i ažuriranje Memo1
+        std::vector<std::string> receivedData = future.get();
+
+        // Ažuriraj Memo1 na glavnom threadu klijenta
+        TThread::Synchronize(TThread::CurrentThread, [&](){
+            Memo1->Lines->Clear();
+            Memo1->Lines->Add("Knjige koje posuðene:");
+            for (const std::string& knjiga : receivedData) {
+                Memo1->Lines->Add(knjiga.c_str());
+            }
+        });
+    } else {
+        ShowMessage("Nije moguæe uspostaviti vezu s poslužiteljem.");
+        TCP_klijent->Disconnect();
+    }
+}
+
+
+
+//---------------------------------------------------------------------------

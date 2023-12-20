@@ -1,0 +1,11 @@
+//---------------------------------------------------------------------------
+
+#ifndef translateFormH
+#define translateFormH
+//---------------------------------------------------------------------------
+#endif
+#include <map>
+#include "Login.h"
+
+
+void translateForm(TForm* Form, String Language, const std::map<String, std::map<String, String>>& translation);

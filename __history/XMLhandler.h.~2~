@@ -1,0 +1,29 @@
+//---------------------------------------------------------------------------
+
+#ifndef XMLhandlerH
+#define XMLhandlerH
+//---------------------------------------------------------------------------
+#endif
+
+#include "nadzor.h"
+
+
+class xml{
+	private:
+	   String imeN, prezimeN, vrijemeN;
+	   TXMLDocument *xmlDoc;
+	   int indeks;
+	public:
+	__fastcall xml(TXMLDocument *xmlDoc, String ime, String prezime, String vrijeme);
+	__fastcall xml(TXMLDocument *xmlDoc, int indeks);
+
+	void __fastcall zapisiNadzor();
+	void __fastcall dodajNadzor();
+	void __fastcall urediNadzor(int OdabraniIndeks);
+	void __fastcall izbrisiNadzor();
+
+
+
+		/*static void DodajNadzor(TXMLDocument *xmlDoc, String imeN, String prezimeN, String vrijemeN);
+		static void UrediNadzor(TXMLDocument *xmlDoc, int indeks, String imeN, String prezimeN, String vrijemeN);  */
+};

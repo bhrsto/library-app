@@ -1,0 +1,40 @@
+//---------------------------------------------------------------------------
+
+#ifndef dodavanjeNadzorH
+#define dodavanjeNadzorH
+//---------------------------------------------------------------------------
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.Forms.hpp>
+#include <Xml.XMLDoc.hpp>
+#include <Xml.xmldom.hpp>
+#include <Xml.XMLIntf.hpp>
+#include <Vcl.ComCtrls.hpp>
+#include <map>
+//---------------------------------------------------------------------------
+class TFdodavanjeNadzor : public TForm
+{
+__published:	// IDE-managed Components
+	TEdit *Eprezime;
+	TLabel *Lprezime;
+	TEdit *Eime;
+	TLabel *Lime;
+	TLabel *Lvrijeme;
+	TButton *BpotvrdiN;
+	TEdit *Evrijeme;
+	void __fastcall FormCreate(TObject *Sender);
+	void __fastcall BpotvrdiNClick(TObject *Sender);
+private:
+	TXMLDocument *XMLDocument2;
+	bool n;
+	int FOdabraniIndeks;
+public:		// User declarations
+	__fastcall TFdodavanjeNadzor(TComponent* Owner, TXMLDocument *xmlDoc, bool n);
+	 __property int OdabraniIndeks = { read = FOdabraniIndeks, write = FOdabraniIndeks };
+	 std::map<String, std::map<String, String>> translation;
+};
+//---------------------------------------------------------------------------
+extern PACKAGE TFdodavanjeNadzor *FdodavanjeNadzor;
+//---------------------------------------------------------------------------
+#endif

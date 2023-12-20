@@ -1,0 +1,96 @@
+//---------------------------------------------------------------------------
+
+#include <System.hpp>
+#pragma hdrstop
+
+#include "skidanjeDretva.h"
+#pragma package(smart_init)
+//---------------------------------------------------------------------------
+
+//   Important: Methods and properties of objects in VCL can only be
+//   used in a method called using Synchronize, for example:
+//
+//      Synchronize(&UpdateCaption);
+//
+//   where UpdateCaption could look like:
+//
+//      void __fastcall PreuzimanjeThread::UpdateCaption()
+//      {
+//        Form1->Caption = "Updated in a thread";
+//      }
+//---------------------------------------------------------------------------
+
+__fastcall PreuzimanjeThread::PreuzimanjeThread(bool CreateSuspended, TProgressBar *ProgressBar, TNetHTTPClient *HttpClient , String www, TLabel *LabelPostotak, TEdit *EditBrzina, TNetHTTPRequest *HttpRequest)
+	: TThread(CreateSuspended), ProgressBar(ProgressBar), HttpClient(HttpClient), www(www), LabelPostotak(LabelPostotak), EditBrzina(EditBrzina), HttpRequest(HttpRequest)
+{
+	HttpClient->OnReceiveData = HandleReceiveData;
+
+	int brzinaSkidanja = StrToInt(EditBrzina->Text); // Brzina u KB/s
+	int intervalTajmera = (brzinaSkidanja > 0) ? (1000 / brzinaSkidanja) : 1000; // Postavite 1 sekundu kao zadani interval ako brzina nije valjana
+	Timer = new TTimer(NULL);
+	Timer->Interval = intervalTajmera;
+	Timer->OnTimer = TimerOnTimer;
+	Timer->Enabled = false;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall PreuzimanjeThread::Execute()
+{
+
+
+	TFileStream *FileStream = new TFileStream("nova_baza.accdb", fmCreate);
+
+	try
+	{
+		HttpClient->Get(www, FileStream);
+	}
+	catch (Exception &E)
+	{
+		// Obradite greške preuzimanja ovdje
+	}
+
+
+	 delete FileStream;
+
+}
+
+void __fastcall PreuzimanjeThread::HandleReceiveData(TObject * const Sender, __int64 AContentLength, __int64 AReadCount, bool &AAbort)
+{
+	int brzinaSkidanja = StrToInt(EditBrzina->Text); // Brzina u KB/s
+	int brzinaBytes = brzinaSkidanja * 1024; // Brzina u bajtovima po sekundi
+
+	if (brzinaBytes > 0)
+	{
+		__int64 preostalo = AContentLength - AReadCount;
+		int spavaj = (preostalo > 0) ? (preostalo / brzinaBytes) * 1000 : 0;
+
+		// Sleep should be avoided in GUI applications as it can make your application unresponsive.
+		// Instead, use a timer to periodically update the progress.
+		// Sleep(spavaj);
+		TThread::Sleep(spavaj);
+		TThread::Synchronize(nullptr, [=]()
+		{
+			int postotak = static_cast<int>((AReadCount * 100) / AContentLength);
+			ProgressBar->Position = postotak;
+			LabelPostotak->Caption = IntToStr(postotak) + "%";
+		});
+	};
+}
+
+
+void __fastcall PreuzimanjeThread::TimerOnTimer(TObject *Sender)
+{
+   /*	TThread::Synchronize(nullptr, [=]()
+	{
+		int brzinaSkidanja = StrToInt(EditBrzina->Text); // Brzina u KB/s
+		int brzinaBytes = brzinaSkidanja * 1024; // Brzina u bajtovima po sekundi
+
+		__int64 preostalo = AContentLength - AReadCount;
+		int spavaj = (preostalo > 0) ? (preostalo / brzinaBytes) * 1000 : 0;
+
+		int postotak = static_cast<int>((AReadCount * 100) / AContentLength);
+		ProgressBar->Position = postotak;
+		LabelPostotak->Caption = IntToStr(postotak) + "%";
+		Timer->Enabled = false;
+	});  */
+}

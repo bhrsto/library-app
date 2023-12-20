@@ -1,0 +1,18 @@
+//---------------------------------------------------------------------------
+
+#pragma hdrstop
+
+#include "XMLhandler.h"
+#include "nadzor.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+
+void __fastcall dodajNadzor(){
+    _di_IXMLnadzorType nadzor = Getnadzor(XMLDoc);
+	_di_IXMLkorsinikType korsinik = nadzor->Add();
+
+	korsinik->ime = imeN;
+	korsinik->prezime = prezimeN;
+	korsinik->vrijeme = vrijemeN;
+	XMLDoc->SaveToFile(XMLDoc->FileName);
+}

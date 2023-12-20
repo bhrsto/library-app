@@ -1,0 +1,318 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#include <DateUtils.hpp>
+#include <jpeg.hpp>
+#include <pngimage.hpp>
+#pragma hdrstop
+
+#include "RegistracijaKorisnika.h"
+#include "dataModule.h"
+#include "translateForm.h"
+#include "Main.h"
+#include "Login.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TRegistracijaK *RegistracijaK;
+//---------------------------------------------------------------------------
+__fastcall TRegistracijaK::TRegistracijaK(TComponent* Owner)
+	: TForm(Owner)
+{
+	translation["Label12"] = {
+		{
+			{"EN", "Enter surname:"},
+			{"HR", "Upisite prezime:"}
+		}
+	};
+
+	translation["Bpretrazivanje"] = {
+		{
+			{"EN", "Search"},
+			{"HR", "Pretrazivanje"}
+		}
+	};
+
+
+	translation["Label2"] = {
+		{
+			{"EN", "Name:"},
+			{"HR", "Ime:"}
+		}
+	};
+
+	translation["Label3"] = {
+		{
+			{"EN", "Surname:"},
+			{"HR", "Prezime:"}
+		}
+	};
+
+	translation["Label5"] = {
+		{
+			{"EN", "BookID"},
+			{"HR", "IDknjige"}
+		}
+	};
+
+	translation["Label6"] = {
+		{
+			{"EN", "Name of the book"},
+			{"HR", "Naziv knjige"}
+		}
+	};
+
+	translation["Label7"] = {
+		{
+			{"EN", "Wiriter"},
+			{"HR", "Pisac"}
+		}
+	};
+
+	translation["Label8"] = {
+		{
+			{"EN", "Date of borrowing"},
+			{"HR", "Datum Posudivanja"}
+		}
+	};
+
+	translation["Label9"] = {
+		{
+			{"EN", "return date"},
+			{"HR", "Datum Vracanja"}
+		}
+	};
+
+
+	translation["Label10"] = {
+		{
+			{"EN", "IDuser"},
+			{"HR", "IdKorisnik"}
+		}
+	};
+
+	translation["Bvracanje"] = {
+		{
+			{"EN", "Book return"},
+			{"HR", "Vracanje"}
+		}
+	};
+
+	translation["BDodajSliku"] = {
+		{
+			{"EN", "Add image"},
+			{"HR", "Dodaj sliku"}
+		}
+	};
+
+	translation["BObrisiSliku"] = {
+		{
+			{"EN", "Delete image"},
+			{"HR", "Obrisi sliku"}
+		}
+	};
+
+	translation["BSortiraj"] = {
+		{
+			{"EN", "Sort"},
+			{"HR", "Sortiraj"}
+		}
+	};
+
+	translateForm(this, jezik, translation);
+
+	if(jezik == "EN"){
+		CBNacin->Items->Strings[0] = "Ascending";
+		CBNacin->Items->Strings[1] = "Descending";
+	}else{
+		CBNacin->Items->Strings[0] = "Uzlazno";
+		CBNacin->Items->Strings[1] = "Silazno";
+	}
+
+}
+//---------------------------------------------------------------------------
+void __fastcall TRegistracijaK::FormCreate(TObject *Sender)
+{
+	promjeni(this);
+
+	DataModule1->ADOQueryKORISNICI->SQL->Text = "SELECT * FROM korisnici";
+	DataModule1->ADOQueryKORISNICI->Open();
+
+	DataModule1->ADOQueryKNJIGE->SQL->Text = "SELECT * FROM knjige";
+	DataModule1->ADOQueryKNJIGE->Open();
+
+	for (int i = 0; i < DBGrid2->FieldCount; i++) {
+		DBGrid2->Columns->Items[i]->Width = 80;
+	}
+
+	for (int i = 0; i < DBGrid3->FieldCount; i++) {
+		DBGrid3->Columns->Items[i]->Width = 120;
+	}
+
+	int idKorisnik = DataModule1->ADOQueryKNJIGE->FieldByName("idKorisnik")->AsInteger;
+	if (idKorisnik == 0)
+	{
+		TDateTime datumVracanja = IncWeek(Date(), 3);
+		DataModule1->ADOQueryKNJIGE->Edit();
+		DataModule1->ADOQueryKNJIGE->FieldByName("datumVracanja")->AsDateTime = datumVracanja;
+		DataModule1->ADOQueryKNJIGE->FieldByName("datumPosudivanja")->AsDateTime = Date();
+		DataModule1->ADOQueryKNJIGE->Post();
+	}
+
+}
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+void __fastcall TRegistracijaK::DBGrid2CellClick(TColumn *Column)
+{
+	 if (DBGrid2->SelectedField != NULL)
+	{
+		int idKorisnik = DataModule1->ADOQueryKORISNICI->FieldByName("ID")->AsInteger;
+
+
+		DataModule1->ADOQueryKNJIGE->SQL->Text = "SELECT knjige.* FROM knjige "
+												"WHERE knjige.idKorisnik = :idKorisnik";
+		DataModule1->ADOQueryKNJIGE->Parameters->ParamByName("idKorisnik")->Value = idKorisnik;
+		DataModule1->ADOQueryKNJIGE->Open();
+		for (int i = 0; i < DBGrid3->FieldCount; i++) {
+			DBGrid3->Columns->Items[i]->Width = 120;
+		}
+    }
+    else
+    {
+        DataModule1->ADOQueryKNJIGE->Close();
+	}
+}
+//---------------------------------------------------------------------------
+void __fastcall TRegistracijaK::BpretrazivanjeClick(TObject *Sender)
+{
+	String kriterij = Epretrazivanje->Text.Trim(); // Dohvati unos iz Edit komponente i ukloni praznine s poèetka i kraja
+
+	// Provjeri je li kriterij prazan
+    if (kriterij.IsEmpty())
+	{
+		DataModule1->ADOQueryKORISNICI->Filter = "";
+        DataModule1->ADOQueryKNJIGE->SQL->Text = "SELECT * FROM knjige";
+		DataModule1->ADOQueryKNJIGE->Open();
+		for (int i = 0; i < DBGrid3->FieldCount; i++) {
+		DBGrid3->Columns->Items[i]->Width = 120;
+		}
+	}
+	else
+    {
+        // Postavi filter za polje naziv u ADOQueryKNJIGE
+		DataModule1->ADOQueryKORISNICI->Filter = "prezime LIKE '%" + kriterij + "%'";
+		Epretrazivanje->Text = "";
+
+	}
+
+	DataModule1->ADOQueryKORISNICI->Filtered = true;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TRegistracijaK::DBGrid3DrawColumnCell(TObject *Sender, const TRect &Rect,
+		  int DataCol, TColumn *Column, TGridDrawState State)
+{
+	if (Column->FieldName == "datumVracanja") // Provjerite je li trenutno obradni stupac "datum_vracanja"
+	{
+		if (!DataModule1->ADOQueryKNJIGE->FieldByName("datumVracanja")->IsNull)
+		{
+			TDateTime datumVracanja = DataModule1->ADOQueryKNJIGE->FieldByName("datumVracanja")->AsDateTime;
+			// Ako je datum vraæanja prošao današnji datum, postavite boju teksta na crvenu
+			if (datumVracanja < Date())
+			{
+				DBGrid3->Canvas->Font->Color = clRed;
+			}
+			else
+			{
+				// Ako datum nije prošao, postavite boju teksta na defaultnu (crna)
+				DBGrid3->Canvas->Font->Color = clBlack;
+			}
+		}
+	}
+
+	// Nastavite normalno crtanje æelije
+	DBGrid3->DefaultDrawColumnCell(Rect, DataCol, Column, State);
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TRegistracijaK::BvracanjeClick(TObject *Sender)
+{
+	if(DBGrid2->SelectedField != NULL){
+		TDateTime datumVracanja = DataModule1->ADOQueryKNJIGE->FieldByName("datumVracanja")->AsDateTime;
+
+		if (datumVracanja < Date())
+		{
+			String prezime = DataModule1->ADOQueryKORISNICI->FieldByName("prezime")->AsString;
+			double iznosDuga = DaysBetween(datumVracanja, Date()) * 0.5;
+
+			// Ispiši poruku o iznosu duga
+			ShowMessage("Kasnite s vraæanjem knjige! Dug za korisnika  " + prezime + " iznosi " + FloatToStr(iznosDuga) + " eura.");
+
+			// Postavi idKorisnik na 0 kako bismo knjigu oznaèili kao "neposuðenu"
+			DataModule1->ADOQueryKNJIGE->Edit();
+			DataModule1->ADOQueryKNJIGE->FieldByName("idKorisnik")->AsInteger = 0;
+			DataModule1->ADOQueryKNJIGE->FieldByName("datumVracanja")->Value = VarAsType(NULL, varDate);// Postavite datumVracanja na praznu vrijednost (NULL)
+			DataModule1->ADOQueryKNJIGE->Post();
+
+			DataModule1->ADOQueryKNJIGE->Refresh();
+		} else{
+			DataModule1->ADOQueryKNJIGE->Edit();
+			DataModule1->ADOQueryKNJIGE->FieldByName("idKorisnik")->AsInteger = 0;
+			DataModule1->ADOQueryKNJIGE->FieldByName("datumVracanja")->Value = VarAsType(NULL, varDate);// Postavite datumVracanja na praznu vrijednost (NULL)
+			DataModule1->ADOQueryKNJIGE->Post();
+		}
+
+	}
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TRegistracijaK::BSortirajClick(TObject *Sender)
+{
+	String polje = CBPolje->Text;
+	String nacin = CBNacin->Text;
+
+	// Provjeri je li odabrano polje i smjer validan
+	if (!polje.IsEmpty() && !nacin.IsEmpty())
+	{
+		// Kreiraj SQL upit s odgovarajuæom ORDER BY klauzulom
+		String smjer = (nacin == "Uzlazno" || nacin == "Ascending") ? "ASC" : "DESC";
+		String sqlQuery = "SELECT * FROM knjige ORDER BY " + polje + " " + smjer;
+
+		// Postavi SQL upit u ADOQueryKNJIGE i ponovno otvori upit
+		DataModule1->ADOQueryKNJIGE->SQL->Text = sqlQuery;
+		DataModule1->ADOQueryKNJIGE->Open();
+		for (int i = 0; i < DBGrid3->FieldCount; i++) {
+		DBGrid3->Columns->Items[i]->Width = 120;
+		}
+	}
+
+
+}
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+
+
+void __fastcall TRegistracijaK::BDodajSlikuClick(TObject *Sender)
+{
+	if(OpenDialog1->Execute()){
+		DataModule1->ADOQueryKNJIGE->Edit();
+		static_cast <TBlobField*>(DataModule1->ADOQueryKNJIGE->FieldByName("Izgled korice"))->LoadFromFile(OpenDialog1->FileName);
+		DataModule1->ADOQueryKNJIGE->Post();
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TRegistracijaK::BObrisiSlikuClick(TObject *Sender)
+{
+    DataModule1->ADOQueryKNJIGE->Edit();
+	static_cast<TBlobField*>(DataModule1->ADOQueryKNJIGE->FieldByName("Izgled korice"))->Clear();
+	DataModule1->ADOQueryKNJIGE->Post();
+}
+//---------------------------------------------------------------------------
+

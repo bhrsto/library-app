@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xdb="http://www.borland.com/schemas/delphi/10.0/XMLDataBinding">
+  <xs:element name="nadzor" type="nadzorType"/>
+  <xs:complexType name="nadzorType"><xs:annotation>
+      <xs:appinfo xdb:docElement="nadzor"/>
+    </xs:annotation>
+    <sequence xmlns="http://www.w3.org/2001/XMLSchema">
+      <xs:element name="korsinik" type="korsinikType" maxOccurs="unbounded"/>
+    </sequence>
+  </xs:complexType>
+  <xs:complexType name="korsinikType">
+    <sequence xmlns="http://www.w3.org/2001/XMLSchema">
+      <xs:element name="ime" type="xs:string"/>
+      <xs:element name="prezime" type="xs:string"/>
+      <xs:element name="vrijeme" type="xs:string"/>
+    </sequence>
+  </xs:complexType>
+</xs:schema>
