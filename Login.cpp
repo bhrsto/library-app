@@ -83,7 +83,39 @@ void __fastcall TLoginForm::BLoginClick(TObject *Sender)
 	HashLog->HashString(sifraSaSoli, TEncoding::UTF8);
 	String pravaSifra = Stream_To_Hex(HashLog->HashOutputValue);
 
-	DataModule1 = new TDataModule1(this);
+
+	TIdHTTP *HTTP = new TIdHTTP(NULL);
+	String URL = "http://localhost:8080/LogIn";
+
+
+	String json = "{\"Ime\":\"" + Ime + "\",\"Prezime\":\"" + Prezime + "\",\"Sifra\":\"" + pravaSifra + "\"}";
+	TStringStream *podaci = new TStringStream(json);
+	try
+	{
+		HTTP->Request->ContentType = "application/json";
+		String ResponseText = HTTP->Post(URL, podaci);
+
+		globalID = StrToInt(ResponseText);
+
+		if(globalID == 1 || globalID == 0){
+			ModalResult = mrOk;
+            TDateTime sadasnjeVrijeme = Now();
+			String formatirani = FormatDateTime("yyyy-mm-dd hh:nn", sadasnjeVrijeme);
+
+			xml *XML1 = new xml(XMLDocument1, Ime, Prezime, formatirani);
+			XML1->zapisiNadzor();
+			delete XML1;
+		}else{
+            ShowMessage("Pogresni podaci");
+		}
+	}
+	__finally
+	{
+		delete HTTP;
+		delete podaci;
+	}
+
+	/*DataModule1 = new TDataModule1(this);
 	DataModule1->ADOQueryLOG->SQL->Text = "SELECT * FROM login WHERE ime = :Ime AND prezime = :Prezime AND sifra = :Sifra";
 	DataModule1->ADOQueryLOG->Parameters->ParamByName("ime")->Value = Ime;
 	DataModule1->ADOQueryLOG->Parameters->ParamByName("prezime")->Value = Prezime;
@@ -93,17 +125,17 @@ void __fastcall TLoginForm::BLoginClick(TObject *Sender)
 	if (DataModule1->ADOQueryLOG->RecordCount > 0) {
 		ModalResult = mrOk;
 		globalID = DataModule1->ADOQueryLOG->FieldByName("ID")->AsInteger;
-		/*TDateTime sadasnjeVrijeme = Now();
+		TDateTime sadasnjeVrijeme = Now();
 		String formatirani = FormatDateTime("yyyy-mm-dd hh:nn", sadasnjeVrijeme);
 
 		xml *XML1 = new xml(XMLDocument1, Ime, Prezime, formatirani);
 		XML1->zapisiNadzor();
-		delete XML1;*/
+		delete XML1;
 	}
 	else {
-		ShowMessage("Pogreöno ime ili lozinka!");
+		ShowMessage("Pogre≈°no ime ili lozinka!");
 	}
-
+	   */
 }
 
 
