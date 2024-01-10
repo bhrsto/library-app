@@ -60,7 +60,7 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 	translation["GroupBox1"] = {
 		{
 			{"EN", "User registration and editing:"},
-			{"HR", "Registracija i ureğivanje korisnika:"}
+			{"HR", "Registracija i ureÄ‘ivanje korisnika:"}
 		}
 	};
 
@@ -74,7 +74,7 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 	translation["SekcijaRegistracijaZaposlenika"] = {
 		{
 			{"EN", "Registration and editing of employees"},
-			{"HR", "Registracija i ureğivanje zaposlenika"}
+			{"HR", "Registracija i ureÄ‘ivanje zaposlenika"}
 		}
 	};
 
@@ -88,7 +88,7 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 	translation["GBIzvjestaj"] = {
 		{
 			{"EN", "Generating reports per client"},
-			{"HR", "Generiranje izvještaja po klijentu"}
+			{"HR", "Generiranje izvjeÅ¡taja po klijentu"}
 		}
 	};
 
@@ -135,6 +135,13 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 		}
 	};
 
+	translation["BPostavke"] = {
+		{
+			{"EN", "Settings"},
+			{"HR", "Postavke"}
+		}
+	};
+
 	translateForm(this, jezik, translation);
 }
 //---------------------------------------------------------------------------
@@ -145,14 +152,12 @@ void __fastcall ucitaj()
 
 	odabraniFont = ini->ReadString("Main Window", "Font", "Calibri");
 	velicinaFonta = ini->ReadInteger("Main Window", "FontSize", 12);
-	//TColor bojaFonta = (TColor)ini->ReadInteger("Main Window", "FontColor", clBlack);
 	bojaPozadine = (TColor)ini->ReadInteger("Main Window", "BackgroundColor", clBtnFace); // Dodano
 
 	delete ini;
 	}
 //--------------------------------------------------------
 
-   // Postavljanje fonta, boje...
 void __fastcall promjeni(TForm* forma)
 {
 	TFont* font = new TFont;
@@ -183,13 +188,12 @@ void __fastcall TMainForm::BRegistracijaKClick(TObject *Sender)
 }
 //--------------------------------------------------
 Encryptor* simetricno = nullptr;
-//EncryptorAsymmetric* asimetricno = nullptr;
+
 void __fastcall TMainForm::FormCreate(TObject *Sender)
 {
 	ucitaj();
 	promjeni(this);
 	simetricno = new Encryptor(Codec1, CryptographicLibrary1);
-	//asimetricno = new EncryptorAsymmetric(ACodec, CryptographicLibrary1, Signatory1);
 
 }
 //---------------------------------------------------------------------------
@@ -215,9 +219,9 @@ void __fastcall TMainForm::TCP_serverExecute(TIdContext *AContext)
 
 	String prviPaket = AContext->Connection->Socket->ReadLn();
 	if(prviPaket == "KLJUCEVI"){
-		String naziv = AContext->Connection->Socket->ReadLn(); // naziv
-		int velicina = AContext->Connection->Socket->ReadInt64(); // velièina
-		// pohrani sadraj datoteke
+		String naziv = AContext->Connection->Socket->ReadLn();
+		int velicina = AContext->Connection->Socket->ReadInt64();
+
 		TFileStream* datoteka = new TFileStream(naziv, fmCreate);
 		//std::unique_ptr<TFileStream> fs(new TFileStream(naziv, fmCreate));
 		AContext->Connection->Socket->ReadStream(datoteka, velicina);
@@ -225,9 +229,9 @@ void __fastcall TMainForm::TCP_serverExecute(TIdContext *AContext)
 		delete datoteka;
 
 		TFileStream* datotekaServer = new TFileStream("javniKljucServer.bin",fmOpenRead);
-		AContext->Connection->Socket->WriteLn(ExtractFileName(datotekaServer->FileName)); // naziv
-		AContext->Connection->Socket->Write(datotekaServer->Size); // velièina
-		AContext->Connection->Socket->Write(datotekaServer); // tok (sadraj)
+		AContext->Connection->Socket->WriteLn(ExtractFileName(datotekaServer->FileName));
+		AContext->Connection->Socket->Write(datotekaServer->Size);
+		AContext->Connection->Socket->Write(datotekaServer);
 		AContext->Connection->Disconnect();
 		delete datotekaServer;
 
@@ -263,7 +267,7 @@ void __fastcall TMainForm::TCP_serverExecute(TIdContext *AContext)
 		DataModule1->ADOQueryKORISNICI->Parameters->ParamByName("id")->Value = sifraKlijenta;
 		DataModule1->ADOQueryKORISNICI->Open();
 
-		String knjige; // String za spremanje naziva knjiga
+		String knjige;
 
 		//int idKorisnika = DataModule1->ADOQueryKORISNICI->FieldByName("ID")->AsInteger;
 
@@ -349,25 +353,22 @@ void __fastcall TMainForm::BIzvjestajClick(TObject *Sender)
 
 	Izvjestaj *izvjestaj = new Izvjestaj(naslov);
 	izvjestaj->GenerirajIzvjestaj();
-	ShowMessage("Izvjestaj je generiran.");
+	//ShowMessage("Izvjestaj je generiran.");
 	delete izvjestaj;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TMainForm::BPrikaziIzvjestajClick(TObject *Sender)
+  void __fastcall TMainForm::BPrikaziIzvjestajClick(TObject *Sender)
 {
-	 Izvjestaj *izvjestajPrikazi = new Izvjestaj(MemoIspis);
-	 izvjestajPrikazi->PrikaziIzvjestaj();
-	 delete izvjestajPrikazi;
+	  Izvjestaj *izvjestaj = new Izvjestaj(MemoIspis);
+	  izvjestaj-> PrikaziIzvjestaj();
+	  delete izvjestaj;
 }
 //---------------------------------------------------------------------------
 
 
-
 void __fastcall TMainForm::BpreuzmiClick(TObject *Sender)
 {
-	/*ProgressBar1->Position = 0;
-	LabelPostotak->Caption = "0%";*/
 	PreuzimanjeThread *Preuzimanje = new PreuzimanjeThread(true, ProgressBar1, HttpClient,Edit1->Text, LabelPostotak, AEditBrzina, HttpRequest);
 	Preuzimanje->FreeOnTerminate = true;
 	Preuzimanje->Start();
@@ -378,65 +379,54 @@ void __fastcall TMainForm::BpreuzmiClick(TObject *Sender)
 
 void __fastcall TMainForm::BzamjeniBazeClick(TObject *Sender)
 {
-  	// Direktno specificirajte putanju nove baze
 	DataModule1->ADOConnection1->Close();
 
-	// 2. Zatvorite sve ADO upite
 	DataModule1->ADOQueryKORISNICI->Close();
     DataModule1->ADOQueryKNJIGE->Close();
 	DataModule1->ADOQueryLOG->Close();
 
-	// 3. Izbrišite staru bazu podataka ako postoji
 	if (FileExists("baza.accdb"))
 	{
 		try
 		{
 			DeleteFile("baza.accdb");
-			ShowMessage("Stara baza uspješno izbrisana!");
+			ShowMessage("Stara baza uspjeÅ¡no izbrisana!");
 		}
 		catch (Exception &E)
 		{
-			ShowMessage("Greška pri brisanju stare baze: " + E.Message);
+			ShowMessage("GreÅ¡ka pri brisanju stare baze: " + E.Message);
 			return;
 		}
 	}
 
-	// 4. Preimenujte novu bazu podataka u isto ime kao i stara baza
 	if (FileExists("nova_baza.accdb"))
 	{
 		try
 		{
 			RenameFile("nova_baza.accdb", "baza.accdb");
-			ShowMessage("Nova baza uspješno preimenovana u staru bazu!");
+			ShowMessage("Nova baza uspjeÅ¡no preimenovana u staru bazu!");
 		}
 		catch (Exception &E)
 		{
-			ShowMessage("Greška pri preimenovanju nove baze: " + E.Message);
+			ShowMessage("GreÅ¡ka pri preimenovanju nove baze: " + E.Message);
 			return;
 		}
 	}
 	else
 	{
-		ShowMessage("Nova baza nije pronağena na odredištu.");
+		ShowMessage("Nova baza nije pronaÄ‘ena na odrediÅ¡tu.");
 		return;
 	}
 
-	// 5. Otvorite veze s bazom podataka
 	DataModule1->ADOConnection1->Open();
 	DataModule1->ADOQueryKORISNICI->Open();
 	DataModule1->ADOQueryKNJIGE->Open();
 	DataModule1->ADOQueryLOG->Open();
 
-	// 6. Testirajte aplikaciju
-	ShowMessage("Baza podataka uspješno zamijenjena i veze ponovno otvorene.");
+	ShowMessage("Baza podataka uspjeÅ¡no zamijenjena i veze ponovno otvorene.");
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TMainForm::BzakasnjelePosudbeClick(TObject *Sender)
-{
-	RESTRequest1->Execute();
-}
-//---------------------------------------------------------------------------
 
 
 
@@ -464,16 +454,16 @@ void __fastcall TMainForm::BgeneriranjeKljucevaClick(TObject *Sender)
 				javniKljuc->SaveToFile("javniKljucServer.bin");
 
 			}
-			ShowMessage("Kljuèevi su uspešno generisani i saèuvani.");
+			ShowMessage("KljuÄevi su uspeÅ¡no generisani i saÄuvani.");
 		} catch (Exception &e) {
-			ShowMessage("Greška pri generisanju kljuèeva: " + e.Message);
+			ShowMessage("GreÅ¡ka pri generisanju kljuÄeva: " + e.Message);
 		}
 
 		delete privatniKljuc;
 		delete javniKljuc;
 
 	} else {
-		ShowMessage("Kljuèevi veæ postoje.");
+		ShowMessage("KljuÄevi veÄ‡ postoje.");
 	}
 }
 
@@ -488,11 +478,6 @@ void __fastcall TMainForm::ComboBox1Change(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TMainForm::Button1Click(TObject *Sender)
-{
-	if(FileExists('datoteka.txt')){
-		DeleteFile('datoteka.txt');
-	}
-}
-//---------------------------------------------------------------------------
+
+
 
