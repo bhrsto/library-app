@@ -28,116 +28,31 @@ void __fastcall TWebModule1::WebModule1DefaultHandlerAction(TObject *Sender, TWe
 //---------------------------------------------------------------------------
 
 
-void __fastcall TWebModule1::WebModule1zakasnjelePosudbeAction(TObject *Sender, TWebRequest *Request,
-		  TWebResponse *Response, bool &Handled)
-{
-	  String jsonResponse = "{";
-
-	  String trenutniKorisnik = "";
-	  TDateTime vrijeme = Now();
-
-	  String sqlKorisniciQuery = "SELECT * FROM korisnici";
-	  ADOQueryKORISNICI->SQL->Text = sqlKorisniciQuery;
-	  ADOQueryKORISNICI->Open();
-
-	  jsonResponse += "\"korisnici\": [";
-
-	  while (!ADOQueryKORISNICI->Eof)
-	  {
-		String ime = ADOQueryKORISNICI->FieldByName("ime")->AsString;
-		String prezime = ADOQueryKORISNICI->FieldByName("prezime")->AsString;
-		int korisnikID = ADOQueryKORISNICI->FieldByName("ID")->AsInteger;
-
-		jsonResponse += "{";
-		jsonResponse += "\"ime\": \"" + ime + "\",";
-		jsonResponse += "\"prezime\": \"" + prezime + "\",";
-		jsonResponse += "\"knjige\": [";
-
-		String sqlKnjigeQuery = "SELECT * FROM knjige WHERE idKorisnik = :korisnikID";
-		ADOQueryKNJIGE->SQL->Text = sqlKnjigeQuery;
-		ADOQueryKNJIGE->Parameters->ParamByName("korisnikID")->Value = korisnikID;
-		ADOQueryKNJIGE->Open();
-
-		bool firstBook = true;
-
-		while (!ADOQueryKNJIGE->Eof)
-		{
-			String nazivKnjige = ADOQueryKNJIGE->FieldByName("naziv")->AsString;
-			TDateTime datumVracanja = ADOQueryKNJIGE->FieldByName("datumVracanja")->AsDateTime;
-
-			  if (vrijeme > datumVracanja)
-			  {
-				double iznosDuga = DaysBetween(datumVracanja, vrijeme) * 0.5;
-
-				if (!firstBook)
-				  jsonResponse += ",";
-
-                 String iznosDugaStr = FloatToStr(iznosDuga);
-				 iznosDugaStr = StringReplace(iznosDugaStr, ",", ".", TReplaceFlags() << rfReplaceAll);
-
-				jsonResponse += "{";
-				jsonResponse += "\"naziv\": \"" + nazivKnjige + "\",";
-				jsonResponse += "\"datumVracanja\": \"" + FormatDateTime("dd.mm.yyyy", datumVracanja) + "\",";
-				jsonResponse += "\"dugovanje\": " + iznosDugaStr;
-				jsonResponse += "}";
-
-				firstBook = false;
-			  }
-
-			  ADOQueryKNJIGE->Next();
-		}
-
-		jsonResponse += "]";
-		jsonResponse += "}";
-
-		ADOQueryKORISNICI->Next();
-
-		if (!ADOQueryKORISNICI->Eof)
-		  jsonResponse += ",";
-
-	  }
-
-	  jsonResponse += "]";
-	  jsonResponse += "}";
-
-	  // Postavite ContentType na "application/json" za JSON format
-	  Response->ContentType = "application/json; charset=UTF-8";
-
-	  // Postavite odgovor na generirani JSON
-	  Response->Content = jsonResponse;
-
-}
-
-//---------------------------------------------------------------------------
 void __fastcall TWebModule1::WebModule1dodavanjeRadnikaAction(TObject *Sender, TWebRequest *Request,
 		  TWebResponse *Response, bool &Handled)
 {
-	// Provjerite metodu zahtjeva - samo POST metoda je dopuštena
 	if (Request->Method != "POST")
 	{
-		Response->StatusCode = 405; // Metoda nije dopuštena
+		Response->StatusCode = 405;
 		Response->ReasonString = "Method Not Allowed";
-		Response->Content = "Samo POST metoda je dopuštena za ovu rutu.";
+		Response->Content = "Samo POST metoda je dopuÅ¡tena za ovu rutu.";
 		return;
 	}
 
-	// Oèekujemo JSON podatke u tijelu zahtjeva
 	String JSONData = Request->Content;
 
-	// Parsiranje JSON podataka
 	TJSONObject *JSONObject = NULL;
 	try
 	{
 		JSONObject = static_cast<TJSONObject*>(TJSONObject::ParseJSONValue(JSONData));
 		if (!JSONObject)
 		{
-			Response->StatusCode = 400; // Pogrešan zahtjev
+			Response->StatusCode = 400;
 			Response->ReasonString = "Bad Request";
 			Response->Content = "Neispravan JSON format.";
 			return;
 		}
 
-		// Izvadite potrebne vrijednosti iz JSON objekta
 		String Ime = JSONObject->GetValue("Ime")->Value();
 		String Prezime = JSONObject->GetValue("Prezime")->Value();
 		String Sifra = JSONObject->GetValue("Sifra")->Value();
@@ -146,11 +61,9 @@ void __fastcall TWebModule1::WebModule1dodavanjeRadnikaAction(TObject *Sender, T
         String IDzaposlenikS = JSONObject->GetValue("IDzaposlenik")->Value();
 		int IDzaposlenik = StrToInt(IDzaposlenikS);
 
-		// Ovdje provjerite ovlasti i izvršite dodavanje radnika u bazu podataka
-		// ...
 
 		if(!jeAdmin(IDzaposlenik)){
-			Response->StatusCode = 403; // Korisnik nema prava pristupa
+			Response->StatusCode = 403;
 			Response->ReasonString = "Zabranjen Pristup";
 			Response->Content = "Nemate ovlasti za dodavanje radnika.";
 			return;
@@ -162,9 +75,9 @@ void __fastcall TWebModule1::WebModule1dodavanjeRadnikaAction(TObject *Sender, T
 			Response->Content = "Ne valja";
 		}else{
 			ADOQueryLOG->SQL->Text = "INSERT INTO login (ime, prezime, sifra, admin) VALUES (:ime, :prezime, :sifra, :admin)";
-			ADOQueryLOG->Parameters->ParamByName("ime")->Value = Ime; // Ime je varijabla iz vašeg zahtjeva
-			ADOQueryLOG->Parameters->ParamByName("prezime")->Value = Prezime; // Prezime je varijabla iz vašeg zahtjeva
-			ADOQueryLOG->Parameters->ParamByName("sifra")->Value = Sifra; // Sifra je varijabla iz vašeg zahtjeva
+			ADOQueryLOG->Parameters->ParamByName("ime")->Value = Ime;
+			ADOQueryLOG->Parameters->ParamByName("prezime")->Value = Prezime;
+			ADOQueryLOG->Parameters->ParamByName("sifra")->Value = Sifra;
 			ADOQueryLOG->Parameters->ParamByName("admin")->Value = Admin;
 			ADOQueryLOG->ExecSQL();
 			}
@@ -178,9 +91,9 @@ void __fastcall TWebModule1::WebModule1dodavanjeRadnikaAction(TObject *Sender, T
 
 	catch (const Exception &ex)
 	{
-		Response->StatusCode = 500; // Interna pogreška servera
+		Response->StatusCode = 500;
 		Response->ReasonString = "Internal Server Error";
-		Response->Content = "Pogreška pri obradi zahtjeva: " + ex.Message;
+		Response->Content = "PogreÅ¡ka pri obradi zahtjeva: " + ex.Message;
 		if (JSONObject)
 			delete JSONObject;
 	}
@@ -193,29 +106,26 @@ void __fastcall TWebModule1::WebModule1urediRadnikaAction(TObject *Sender, TWebR
 {
    if (Request->Method != "PUT")
 	{
-		Response->StatusCode = 405; // Metoda nije dopuštena
+		Response->StatusCode = 405;
 		Response->ReasonString = "Method Not Allowed";
-		Response->Content = "Samo PUT metoda je dopuštena za ovu rutu.";
+		Response->Content = "Samo PUT metoda je dopuÅ¡tena za ovu rutu.";
 		return;
 	}
 
-	// Oèekujemo JSON podatke u tijelu zahtjeva
 	String JSONData = Request->Content;
 
-	// Parsiranje JSON podataka
 	TJSONObject *JSONObject = NULL;
 	try
 	{
 		JSONObject = static_cast<TJSONObject*>(TJSONObject::ParseJSONValue(JSONData));
 		if (!JSONObject)
 		{
-			Response->StatusCode = 400; // Pogrešan zahtjev
+			Response->StatusCode = 400;
 			Response->ReasonString = "Bad Request";
 			Response->Content = "Neispravan JSON format.";
 			return;
 		}
 
-		// Izvadite potrebne vrijednosti iz JSON objekta
 		String Ime = JSONObject->GetValue("Ime")->Value();
 		String Prezime = JSONObject->GetValue("Prezime")->Value();
 		String ID = JSONObject->GetValue("ID")->Value();
@@ -226,9 +136,9 @@ void __fastcall TWebModule1::WebModule1urediRadnikaAction(TObject *Sender, TWebR
 		int IDzaposlenik = StrToInt(IDzaposlenikS);
 
 			if(!jeAdmin(IDzaposlenik)){
-				Response->StatusCode = 403; // Korisnik nema prava pristupa
+				Response->StatusCode = 403;
 				Response->ReasonString = "Zabranjen Pristup";
-				Response->Content = "Nemate ovlasti za ureðivanje radnika.";
+				Response->Content = "Nemate ovlasti za ureÄ‘ivanje radnika.";
 				return;
 		}
 
@@ -253,9 +163,9 @@ void __fastcall TWebModule1::WebModule1urediRadnikaAction(TObject *Sender, TWebR
 
 	catch (const Exception &ex)
 	{
-		Response->StatusCode = 500; // Interna pogreška servera
+		Response->StatusCode = 500;
 		Response->ReasonString = "Internal Server Error";
-		Response->Content = "Pogreška pri obradi zahtjeva: " + ex.Message;
+		Response->Content = "PogreÅ¡ka pri obradi zahtjeva: " + ex.Message;
 		if (JSONObject)
 			delete JSONObject;
 	}
@@ -274,9 +184,9 @@ void __fastcall TWebModule1::WebModule1izbrisiRadnikaAction(TObject *Sender, TWe
 	int IDzaposlenik = StrToInt(IDzaposlenikS);
 
 	if(!jeAdmin(IDzaposlenik)){
-		Response->StatusCode = 403; // Korisnik nema prava pristupa
+		Response->StatusCode = 403;
 		Response->ReasonString = "Zabranjen Pristup";
-		Response->Content = "Nemate ovlasti za ureðivanje radnika.";
+		Response->Content = "Nemate ovlasti za ureÄ‘ivanje radnika.";
 		Response->SendResponse();
 
 		return;
@@ -307,13 +217,48 @@ void __fastcall TWebModule1::WebModule1izbrisiRadnikaAction(TObject *Sender, TWe
 	if (ADOQueryLOG->RecordCount > 0)
 	{
 		int admin = ADOQueryLOG->FieldByName("admin")->AsInteger;
-		pom = (admin == 1); // Provjerite je li admin postavljen na 1 (true)
+		pom = (admin == 1);
 	}
 
-	ADOQueryLOG->Close(); // Obavezno zatvorite upit
+	ADOQueryLOG->Close();
 
 	return pom;
 }
 
 
+
+void __fastcall TWebModule1::WebModule1LogInAction(TObject *Sender, TWebRequest *Request,
+		  TWebResponse *Response, bool &Handled)
+{
+	String JSONData = Request->Content;
+
+    TJSONObject *JSONObject = TJSONObject::ParseJSONValue(JSONData) ? dynamic_cast<TJSONObject*>(TJSONObject::ParseJSONValue(JSONData)) : NULL;
+
+    if (JSONObject != NULL) {
+        String Ime = JSONObject->GetValue("Ime")->Value();
+        String Prezime = JSONObject->GetValue("Prezime")->Value();
+        String Sifra = JSONObject->GetValue("Sifra")->Value();
+
+        delete JSONObject;
+
+        ADOQueryLOG->SQL->Text = "SELECT * FROM login where ime = :ime AND prezime = :prezime AND sifra = :sifra";
+        ADOQueryLOG->Parameters->ParamByName("ime")->Value = Ime;
+        ADOQueryLOG->Parameters->ParamByName("prezime")->Value = Prezime;
+        ADOQueryLOG->Parameters->ParamByName("sifra")->Value = Sifra;
+        ADOQueryLOG->Open();
+
+        if (ADOQueryLOG->Eof) {
+            Response->Content = IntToStr(2);
+            Response->ContentType = "text/plain";
+        } else {
+            int admin = ADOQueryLOG->FieldByName("admin")->AsInteger;
+            Response->Content = IntToStr(admin);
+            Response->ContentType = "text/plain";
+        }
+    } else {
+        Response->Content = "Neuspjelo parsiranje JSON-a";
+        Response->ContentType = "text/plain";
+	}
+}
+//---------------------------------------------------------------------------
 
