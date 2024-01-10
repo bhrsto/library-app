@@ -50,7 +50,7 @@ void Izvjestaj::GenerirajIzvjestaj() {
 
 	DataModule1->ADOQueryKORISNICI->Close();
 
-	   izvjestaj->SaveToFile ("Izvjestaj.pdf");
+	   izvjestaj->SaveToFile ("Izvjestaj.txt");
 
 		delete izvjestaj;
 	}
@@ -60,7 +60,7 @@ void Izvjestaj::GenerirajIzvjestaj() {
 void Izvjestaj::PrikaziIzvjestaj() {
 
 	TStringList *izvjestajCitaj = new TStringList;
-	izvjestajCitaj->LoadFromFile("Izvjestaj.pdf");
+	izvjestajCitaj->LoadFromFile("Izvjestaj.txt");
 
 	MemoIspis->Lines->Clear();
 	MemoIspis->Lines->AddStrings(izvjestajCitaj);
